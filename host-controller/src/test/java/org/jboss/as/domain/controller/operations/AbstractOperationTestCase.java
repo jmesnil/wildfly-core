@@ -56,6 +56,7 @@ import java.util.Set;
 
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.ControlledProcessState;
+import org.jboss.as.controller.NotificationDefinition;
 import org.jboss.as.controller.logging.ControllerLogger;
 import org.jboss.as.controller.NoopOperationStepHandler;
 import org.jboss.as.controller.OperationContext;
@@ -79,10 +80,12 @@ import org.jboss.as.controller.client.OperationAttachments;
 import org.jboss.as.controller.client.OperationMessageHandler;
 import org.jboss.as.controller.descriptions.DescriptionProvider;
 import org.jboss.as.controller.descriptions.OverrideDescriptionProvider;
+import org.jboss.as.controller.notification.Notification;
 import org.jboss.as.controller.registry.AliasEntry;
 import org.jboss.as.controller.registry.AttributeAccess;
 import org.jboss.as.controller.registry.ImmutableManagementResourceRegistration;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
+import org.jboss.as.controller.registry.NotificationEntry;
 import org.jboss.as.controller.registry.OperationEntry;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.as.domain.controller.LocalHostControllerInfo;
@@ -496,6 +499,11 @@ public abstract class AbstractOperationTestCase {
         public void report(MessageSeverity severity, String message) {
         }
 
+        @Override
+        public void emit(Notification notification) {
+            // no-op
+        }
+
         public boolean markResourceRestarted(PathAddress resource, Object owner) {
             return false;
         }
@@ -769,6 +777,21 @@ public abstract class AbstractOperationTestCase {
 
         }
 
+        @Override
+        public void registerNotification(NotificationDefinition notification, boolean inherited) {
+            // no-op
+        }
+
+        @Override
+        public void registerNotification(NotificationDefinition notification) {
+            // no-op
+        }
+
+        @Override
+        public void unregisterNotification(String notificationType) {
+            // no-op
+        }
+
         public void registerProxyController(PathElement address, ProxyController proxyController) {
 
         }
@@ -822,6 +845,11 @@ public abstract class AbstractOperationTestCase {
         }
 
         public Map<String, OperationEntry> getOperationDescriptions(PathAddress address, boolean inherited) {
+            return null;
+        }
+
+        @Override
+        public Map<String, NotificationEntry> getNotificationDescriptions(PathAddress address, boolean inherited) {
             return null;
         }
 

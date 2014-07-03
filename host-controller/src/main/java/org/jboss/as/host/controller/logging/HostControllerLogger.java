@@ -1199,4 +1199,20 @@ public interface HostControllerLogger extends BasicLogger {
     @LogMessage(level = Level.INFO)
     @Message(id = 152, value = "Server %s will be started with JVM launch command prefix '%s'")
     void serverLaunchCommandPrefix(String serverName, String launchCommandPrefix);
+
+    @Message(id=153, value="The server has been started")
+    String serverHasBeenStarted();
+
+    @Message(id=154, value="The server has been stopped")
+    String serverHasBeenStopped();
+
+    @Message(id=155, value="The server has been restarted")
+    String serverHasBeenRestarted();
+
+    @Message(id=156, value="The server has been killed")
+    String serverHasBeenKilled();
+
+    @Message(id=157, value="The server has been destroyed")
+    String serverHasBeenDestroyed();
+
 }

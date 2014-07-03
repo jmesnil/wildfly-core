@@ -341,6 +341,7 @@ public class DomainRootDefinition extends SimpleResourceDefinition {
     public void initialize(ManagementResourceRegistration resourceRegistration) {
         registerAttributes(resourceRegistration);
         registerOperations(resourceRegistration);
+        registerNotifications(resourceRegistration);
         registerChildren(resourceRegistration);
     }
 

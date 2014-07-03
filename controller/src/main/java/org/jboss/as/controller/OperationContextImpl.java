@@ -38,6 +38,8 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OPERATION_HEADERS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.REQUIRED;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RESOURCE_ADDED_NOTIFICATION;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RESOURCE_REMOVED_NOTIFICATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RUNNING_TIME;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SERVER_CONFIG;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SERVER_GROUP;
@@ -76,6 +78,8 @@ import org.jboss.as.controller.client.OperationMessageHandler;
 import org.jboss.as.controller.descriptions.DescriptionProvider;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.logging.ControllerLogger;
+import org.jboss.as.controller.notification.Notification;
+import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.controller.operations.global.GlobalOperationHandlers;
 import org.jboss.as.controller.operations.global.ReadResourceHandler;
 import org.jboss.as.controller.persistence.ConfigurationPersistenceException;
@@ -190,8 +194,9 @@ final class OperationContextImpl extends AbstractOperationContext {
                          final ControlledProcessState processState, final AuditLogger auditLogger, final boolean booting,
                          final HostServerGroupTracker hostServerGroupTracker,
                          final ModelNode blockingTimeoutConfig,
-                         final AccessMechanism accessMechanism) {
-        super(processType, runningMode, transactionControl, processState, booting, auditLogger);
+                         final AccessMechanism accessMechanism,
+                         final NotificationSupport notificationSupport) {
+        super(processType, runningMode, transactionControl, processState, booting, auditLogger, notificationSupport);
         this.operationId = operationId;
         this.operationName = operationName;
         this.operationAddress = operationAddress.isDefined()
@@ -654,6 +659,10 @@ final class OperationContextImpl extends AbstractOperationContext {
             }
             resource = requireChild(resource, element, address);
         }
+
+        // keep a copy of the resource's model to compare it after the execution and emit a attribute-value-written notification
+        activeStep.resourceForUpdate = resource.getModel().clone();
+
         return resource;
     }
 
@@ -757,6 +766,9 @@ final class OperationContextImpl extends AbstractOperationContext {
                 }
             }
         }
+
+        Notification notification = new Notification(RESOURCE_ADDED_NOTIFICATION, absoluteAddress.toModelNode(), ControllerLogger.ROOT_LOGGER.resourceWasAdded(absoluteAddress));
+        emit(notification);
     }
 
     @Override
@@ -803,6 +815,10 @@ final class OperationContextImpl extends AbstractOperationContext {
                 model = requireChild(model, element, address);
             }
         }
+
+        Notification notification = new Notification(RESOURCE_REMOVED_NOTIFICATION, address.toModelNode(), ControllerLogger.ROOT_LOGGER.resourceWasRemoved(address));
+        emit(notification);
+
         return model;
     }
 

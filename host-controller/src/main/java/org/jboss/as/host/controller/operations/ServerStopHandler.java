@@ -20,6 +20,7 @@ package org.jboss.as.host.controller.operations;
 
 
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OP_ADDR;
+import static org.jboss.as.host.controller.resources.ServerConfigResourceDefinition.SERVER_STOPPED_NOTIFICATION;
 
 import java.util.EnumSet;
 import org.jboss.as.controller.OperationContext;
@@ -33,7 +34,9 @@ import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.access.Action;
 import org.jboss.as.controller.client.helpers.domain.ServerStatus;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.as.controller.notification.Notification;
 import org.jboss.as.host.controller.ServerInventory;
+import org.jboss.as.host.controller.logging.HostControllerLogger;
 import org.jboss.dmr.ModelNode;
 import org.jboss.dmr.ModelType;
 
@@ -87,6 +90,9 @@ public class ServerStopHandler implements OperationStepHandler {
 
                 final ServerStatus status = serverInventory.stopServer(serverName, timeout, blocking);
                 context.getResult().set(status.toString());
+
+                context.emit(new Notification(SERVER_STOPPED_NOTIFICATION, address, HostControllerLogger.ROOT_LOGGER.serverHasBeenRestarted()));
+
                 context.completeStep(OperationContext.RollbackHandler.NOOP_ROLLBACK_HANDLER);
             }
         }, OperationContext.Stage.RUNTIME);

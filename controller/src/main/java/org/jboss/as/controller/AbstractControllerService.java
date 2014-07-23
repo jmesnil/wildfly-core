@@ -246,6 +246,7 @@ public abstract class AbstractControllerService implements Service<ModelControll
                 new ContainerStateMonitor(container),
                 configurationPersister, processType, runningModeControl, prepareStep,
                 processState, executorService, expressionResolver, authorizer, auditLogger, notificationSupport);
+        notificationSupport.setModelController(controller);
 
         // Initialize the model
         initModel(controller.getRootResource(), controller.getRootRegistration(), controller.getModelControllerResource());

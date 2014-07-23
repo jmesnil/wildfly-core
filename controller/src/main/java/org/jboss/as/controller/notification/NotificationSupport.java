@@ -24,6 +24,8 @@ package org.jboss.as.controller.notification;
 
 import java.util.concurrent.ExecutorService;
 
+import org.jboss.as.controller.ModelController;
+
 /**
  * The NotificationSupport can be used to emit notifications.
  *
@@ -43,6 +45,8 @@ public interface NotificationSupport {
      */
     void emit(final Notification... notifications);
 
+    void setModelController(ModelController controller);
+
     class Factory {
         private Factory() {
         }
@@ -54,7 +58,7 @@ public interface NotificationSupport {
          * @param executorService can be {@code null}.
          */
         public static NotificationSupport create(ExecutorService executorService) {
-            NotificationRegistryImpl registry = new NotificationRegistryImpl();
+            NotificationRegistryImpl registry = new NotificationRegistryImpl(executorService);
             if (executorService == null) {
                 return new NotificationSupports.BlockingNotificationSupport(registry);
             } else {

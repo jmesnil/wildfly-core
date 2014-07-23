@@ -29,6 +29,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import org.jboss.as.controller.ModelController;
 import org.jboss.as.controller.logging.ControllerLogger;
 
 /**
@@ -56,6 +57,11 @@ class NotificationSupports {
         @Override
         public void emit(Notification... notifications) {
             fireNotifications(registry, notifications);
+        }
+
+        @Override
+        public void setModelController(ModelController controller) {
+            registry.setModelController(controller);
         }
 
         @Override
@@ -113,6 +119,11 @@ class NotificationSupports {
         @Override
         public NotificationRegistry getNotificationRegistry() {
             return registry;
+        }
+
+        @Override
+        public void setModelController(ModelController controller) {
+            registry.setModelController(controller);
         }
     }
 

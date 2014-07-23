@@ -22,6 +22,8 @@
 
 package org.jboss.as.controller.notification;
 
+import java.util.concurrent.TimeUnit;
+
 import org.jboss.as.controller.PathAddress;
 
 /**
@@ -65,4 +67,6 @@ public interface NotificationRegistry {
      * @param filter the notification filter
      */
     void unregisterNotificationHandler(PathAddress source, NotificationHandler handler, NotificationFilter filter);
+
+    void registerMetricNotificationHandler(PathAddress source, String name, NotificationHandler handler, NotificationFilter filter, int interval, TimeUnit timeunit);
 }

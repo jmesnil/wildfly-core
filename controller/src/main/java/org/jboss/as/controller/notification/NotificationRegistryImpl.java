@@ -22,14 +22,23 @@
 
 package org.jboss.as.controller.notification;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
+import org.jboss.as.controller.ModelController;
 import org.jboss.as.controller.PathAddress;
+import org.jboss.as.controller.client.Operation;
+import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
+import org.jboss.dmr.ModelNode;
 
 /**
  * Implementation of a NotificationRegistry.
@@ -42,6 +51,15 @@ class NotificationRegistryImpl implements NotificationRegistry {
      * Values are sets of NotificationHandlerEntry (composed of an handler and filter).
      */
     private final Map<PathAddress, Set<NotificationHandlerEntry>> notificationHandlers = new ConcurrentHashMap<PathAddress, Set<NotificationHandlerEntry>>();
+    private final ExecutorService executorService;
+    private final ScheduledExecutorService scheduledExecutorService;
+    private ModelController controller;
+
+    public NotificationRegistryImpl(ExecutorService executorService) {
+        this.executorService = executorService;
+        scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+    }
+
 
     @Override
     public synchronized void registerNotificationHandler(PathAddress source, NotificationHandler handler, NotificationFilter filter) {
@@ -60,6 +78,26 @@ class NotificationRegistryImpl implements NotificationRegistry {
         if (handlers != null) {
             handlers.remove(entry);
         }
+    }
+
+    @Override
+    public void registerMetricNotificationHandler(final PathAddress source, final String name, final NotificationHandler handler, NotificationFilter filter, int interval, TimeUnit timeunit) {
+        scheduledExecutorService.scheduleAtFixedRate(new Runnable() {
+            @Override
+            public void run() {
+                ModelNode readMetric = new ModelNode();
+                readMetric.get(ModelDescriptionConstants.OP_ADDR).set(source.toModelNode());
+                readMetric.get(ModelDescriptionConstants.OP).set(ModelDescriptionConstants.READ_ATTRIBUTE_OPERATION);
+                readMetric.get(ModelDescriptionConstants.NAME).set(name);
+                try {
+                    ModelNode result = controller.createClient(executorService).execute(readMetric);
+                    System.out.println("result = " + result);
+                    handler.handleNotification(new Notification("metric-value-changed", source, "metric value changed", result.get(ModelDescriptionConstants.RESULT)));
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 0, interval, timeunit);
     }
 
     /**
@@ -81,6 +119,10 @@ class NotificationRegistryImpl implements NotificationRegistry {
             }
         }
         return handlers;
+    }
+
+    public void setModelController(ModelController controller) {
+        this.controller = controller;
     }
 
     private class NotificationHandlerEntry {

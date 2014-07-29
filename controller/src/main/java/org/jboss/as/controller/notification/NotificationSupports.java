@@ -119,7 +119,8 @@ class NotificationSupports {
 
     private static void fireNotifications(NotificationRegistryImpl registry, final Notification... notifications) {
         for (Notification notification : notifications) {
-            System.out.println("notification = " + notification);
+            System.out.println(">>>> Emit notification " + notification);
+            ControllerLogger.ROOT_LOGGER.tracef("Emit notification %s", notification);
             try {
                 // each notification may have a different subset of handlers depending on their filters
                 for (NotificationHandler handler : registry.findMatchingNotificationHandlers(notification)) {

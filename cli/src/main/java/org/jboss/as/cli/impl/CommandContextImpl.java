@@ -464,9 +464,9 @@ class CommandContextImpl implements CommandContext, ModelControllerClientFactory
         cmdRegistry.registerHandler(new JDBCDriverInfoHandler(this), "jdbc-driver-info");
 
         // JMS
-        cmdRegistry.registerHandler(new GenericTypeOperationHandler(this, "/subsystem=messaging/hornetq-server=default/jms-queue", "queue-address"), "jms-queue");
-        cmdRegistry.registerHandler(new GenericTypeOperationHandler(this, "/subsystem=messaging/hornetq-server=default/jms-topic", "topic-address"), "jms-topic");
-        cmdRegistry.registerHandler(new GenericTypeOperationHandler(this, "/subsystem=messaging/hornetq-server=default/connection-factory", null), "connection-factory");
+        cmdRegistry.registerHandler(new GenericTypeOperationHandler(this, "/subsystem=messaging-activemq/server=default/jms-queue", "queue-address"), "jms-queue");
+        cmdRegistry.registerHandler(new GenericTypeOperationHandler(this, "/subsystem=messaging-activemq/server=default/jms-topic", "topic-address"), "jms-topic");
+        cmdRegistry.registerHandler(new GenericTypeOperationHandler(this, "/subsystem=messaging-activemq/server=default/connection-factory", null), "connection-factory");
         // these are used for the cts setup
         cmdRegistry.registerHandler(new CreateJmsResourceHandler(this), false, "create-jms-resource");
         cmdRegistry.registerHandler(new DeleteJmsResourceHandler(this), false, "delete-jms-resource");

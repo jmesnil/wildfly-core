@@ -38,7 +38,7 @@ public class DeleteJmsResourceHandler extends BatchModeCommandHandler {
 
     public DeleteJmsResourceHandler(CommandContext ctx) {
         super(ctx, "delete-jms-resource", true);
-        this.addRequiredPath("/subsystem=messaging");
+        this.addRequiredPath("/subsystem=messaging-activemq");
     }
 
     @Override
@@ -87,8 +87,8 @@ public class DeleteJmsResourceHandler extends BatchModeCommandHandler {
         }
 
         DefaultOperationRequestBuilder builder = new DefaultOperationRequestBuilder();
-        builder.addNode("subsystem", "messaging");
-        builder.addNode("hornetq-server", serverName);
+        builder.addNode("subsystem", "messaging-activemq");
+        builder.addNode("server", serverName);
         builder.addNode(resource, jndiName);
         builder.setOperationName("remove");
         return builder.buildRequest();

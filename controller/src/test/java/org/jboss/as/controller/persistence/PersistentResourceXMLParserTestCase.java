@@ -52,6 +52,7 @@ import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
 import org.jboss.as.controller.PersistentResourceXMLDescription;
 import org.jboss.as.controller.PersistentResourceXMLParser;
+import org.jboss.as.controller.PropertiesAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.StringListAttributeDefinition;
@@ -321,7 +322,16 @@ public class PersistentResourceXMLParserTestCase {
                 .setAllowExpression(true)
                 .setRestartAllServices()
                 .build();
-
+        public static final PropertiesAttributeDefinition SOURCE_PROPERTIES = new PropertiesAttributeDefinition.Builder("source-properties", true)
+                .setWrapXmlElement(true)
+                .setWrapperElement("source")
+                .setXmlName("property")
+                .build();
+        public static final PropertiesAttributeDefinition TARGET_PROPERTIES = new PropertiesAttributeDefinition.Builder("target-properties", true)
+                .setWrapXmlElement(true)
+                .setWrapperElement("target")
+                .setXmlName("property")
+                .build();
 
 
         protected static final PersistentResourceDefinition RESOURCE_INSTANCE = new PersistentResourceDefinition(PathElement.pathElement("resource"), new NonResolvingResourceDescriptionResolver()) {
@@ -357,6 +367,8 @@ public class PersistentResourceXMLParserTestCase {
                 Collection<AttributeDefinition> attributes = new ArrayList<>();
                 attributes.add(STATISTICS_ENABLED);
                 attributes.add(SECURITY_ENABLED);
+                attributes.add(SOURCE_PROPERTIES);
+                attributes.add(TARGET_PROPERTIES);
                 return attributes;
             }
 

@@ -20,6 +20,12 @@
     <server name="default" >
             <security enabled="${security.enabled:false}" />
             <statistics enabled="${statistics.enabled:true}" />
+            <interceptors>
+                <class name="org.bar.MyInterceptor"
+                       module="org.bar" />
+                <class name="org.baz.MyOtherInterceptor"
+                       module="org.baz" />
+            </interceptors>
             <buffer-cache name="default" buffer-size="1025" buffers-per-region="1054" max-regions="15" alias="entry1 entry2 entry3" />
       </server>
   <server name="bar"> <!-- we are testing if parsing empty tags works properly -->

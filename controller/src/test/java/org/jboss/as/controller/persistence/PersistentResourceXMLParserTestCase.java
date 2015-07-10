@@ -48,6 +48,8 @@ import javax.xml.transform.stream.StreamSource;
 import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.AttributeMarshaller;
 import org.jboss.as.controller.AttributeParser;
+import org.jboss.as.controller.ObjectListAttributeDefinition;
+import org.jboss.as.controller.ObjectTypeAttributeDefinition;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PersistentResourceDefinition;
@@ -385,7 +387,21 @@ public class PersistentResourceXMLParserTestCase {
                 .setRestartAllServices()
                 .build();
 
+        public static final ObjectTypeAttributeDefinition CLASS = ObjectTypeAttributeDefinition.Builder.of("class",
+                create("name", ModelType.STRING, false)
+                        .setAllowExpression(false)
+                        .build(),
+                create("module", ModelType.STRING, false)
+                        .setAllowExpression(false)
+                        .build())
+                .build();
 
+        public static final ObjectListAttributeDefinition INTERCEPTORS = ObjectListAttributeDefinition.Builder.of("interceptors", CLASS)
+                .setAllowNull(true)
+                .setAllowExpression(false)
+                .setMinSize(1)
+                .setMaxSize(Integer.MAX_VALUE)
+                .build();
 
         protected static final PersistentResourceDefinition RESOURCE_INSTANCE = new PersistentResourceDefinition(PathElement.pathElement("resource"), new NonResolvingResourceDescriptionResolver()) {
             @Override
@@ -422,6 +438,7 @@ public class PersistentResourceXMLParserTestCase {
                 Collection<AttributeDefinition> attributes = new ArrayList<>();
                 attributes.add(STATISTICS_ENABLED);
                 attributes.add(SECURITY_ENABLED);
+                attributes.add(INTERCEPTORS);
                 return attributes;
             }
 
@@ -517,7 +534,7 @@ public class PersistentResourceXMLParserTestCase {
             return builder(SUBSYSTEM_ROOT_INSTANCE, NAMESPACE)
                     .addChild(
                             builder(SERVER_INSTANCE)
-                                    .addAttributes(SECURITY_ENABLED, STATISTICS_ENABLED)
+                                    .addAttributes(SECURITY_ENABLED, STATISTICS_ENABLED, INTERCEPTORS)
                                     .addChild(
                                             builder(BUFFER_CACHE_INSTANCE)
                                                     .addAttributes(BUFFER_SIZE, BUFFERS_PER_REGION, MAX_REGIONS)

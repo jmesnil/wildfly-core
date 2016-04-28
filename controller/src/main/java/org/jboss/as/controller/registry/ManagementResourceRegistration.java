@@ -31,8 +31,10 @@ import org.jboss.as.controller.OperationDefinition;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.ProcessType;
 import org.jboss.as.controller.ProxyController;
 import org.jboss.as.controller.ResourceDefinition;
+import org.jboss.as.controller.RunningMode;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
 import org.jboss.as.controller.access.management.AccessConstraintUtilizationRegistry;
 import org.jboss.as.controller.CapabilityRegistry;
@@ -310,7 +312,23 @@ public interface ManagementResourceRegistration extends ImmutableManagementResou
      */
     class Factory {
 
+        public static final Factory DEFAULT = new Factory();
+
+        private final ProcessType processType;
+        private final RunningMode runningMode;
+
         private Factory() {
+            processType = null;
+            runningMode = null;
+        }
+
+        private Factory(ProcessType processType, RunningMode runningMode) {
+            this.processType = processType;
+            this.runningMode = runningMode;
+        }
+
+        public static Factory forEnvironment(ProcessType processType, RunningMode runningMode) {
+            return new Factory(processType, runningMode);
         }
 
         /**
@@ -396,7 +414,7 @@ public interface ManagementResourceRegistration extends ImmutableManagementResou
                     return false;
                 }
             };
-            return new ConcreteResourceRegistration(null, null, rootResourceDefinition, constraintUtilizationRegistry, false, null);
+            return new ConcreteResourceRegistration(null, null, rootResourceDefinition, constraintUtilizationRegistry, false, null, null, null);
         }
 
         /**
@@ -407,8 +425,13 @@ public interface ManagementResourceRegistration extends ImmutableManagementResou
          *
          * @throws SecurityException if the caller does not have {@link ImmutableManagementResourceRegistration#ACCESS_PERMISSION}
          */
+        @Deprecated
         public static ManagementResourceRegistration create(final ResourceDefinition resourceDefinition) {
-            return create(resourceDefinition, null, null);
+            return DEFAULT.createRegistry(resourceDefinition, null, null);
+        }
+
+        public ManagementResourceRegistration createRegistry(final ResourceDefinition resourceDefinition) {
+            return createRegistry(resourceDefinition, null, null);
         }
 
         /**
@@ -424,7 +447,7 @@ public interface ManagementResourceRegistration extends ImmutableManagementResou
         @Deprecated
         public static ManagementResourceRegistration create(final ResourceDefinition resourceDefinition,
                                                             AccessConstraintUtilizationRegistry constraintUtilizationRegistry) {
-            return create(resourceDefinition, constraintUtilizationRegistry, null);
+            return DEFAULT.createRegistry(resourceDefinition, constraintUtilizationRegistry, null);
         }
 
 
@@ -438,15 +461,23 @@ public interface ManagementResourceRegistration extends ImmutableManagementResou
          *
          * @throws SecurityException if the caller does not have {@link ImmutableManagementResourceRegistration#ACCESS_PERMISSION}
          */
+        @Deprecated
         public static ManagementResourceRegistration create(final ResourceDefinition resourceDefinition,
                                                             AccessConstraintUtilizationRegistry constraintUtilizationRegistry,
                                                             CapabilityRegistry registry) {
+            return DEFAULT.createRegistry(resourceDefinition, constraintUtilizationRegistry, registry);
+        }
+
+
+        public ManagementResourceRegistration createRegistry(final ResourceDefinition resourceDefinition,
+                                                             AccessConstraintUtilizationRegistry constraintUtilizationRegistry,
+                                                             CapabilityRegistry registry) {
             if (resourceDefinition == null) {
                 throw ControllerLogger.ROOT_LOGGER.nullVar("rootModelDescriptionProviderFactory");
             }
             ConcreteResourceRegistration resourceRegistration =
                     new ConcreteResourceRegistration(null, null, resourceDefinition,
-                            constraintUtilizationRegistry, false, registry);
+                            constraintUtilizationRegistry, false, registry, processType, runningMode);
             resourceDefinition.registerAttributes(resourceRegistration);
             resourceDefinition.registerOperations(resourceRegistration);
             resourceDefinition.registerChildren(resourceRegistration);

@@ -81,7 +81,13 @@ final class ConcreteResourceRegistration extends AbstractResourceRegistration {
 
     private final Lock readLock;
     private final Lock writeLock;
+    /**
+     * Can be {@code null}. In that case, the MMR will always register things whether it makes sense for this type of process.
+     */
     final ProcessType processType;
+    /**
+     * Can be {@code null}. In that case, the MMR will always register things whether it makes sense for this type of process.
+     */
     final RunningMode runningMode;
 
     ConcreteResourceRegistration(final String valueString, final NodeSubregistry parent, final ResourceDefinition definition,
@@ -451,16 +457,20 @@ final class ConcreteResourceRegistration extends AbstractResourceRegistration {
     public void registerMetric(AttributeDefinition definition, OperationStepHandler metricHandler) {
         assert assertMetricValues(definition); //The real message will be in an assertion thrown by assertMetricValues
         checkPermission();
-        if (isMetricRegistrationAllowed() || definition.getFlags().contains(AttributeAccess.Flag.FORCE_REGISTRATION)) {
+        if (isMetricRegistrationAllowed(definition)) {
             AttributeAccess aa = new AttributeAccess(AccessType.METRIC, AttributeAccess.Storage.RUNTIME, metricHandler, null, definition, definition.getFlags());
             storeAttribute(definition, aa);
         }
     }
 
-    private boolean isMetricRegistrationAllowed() {
-        System.out.println("ConcreteResourceRegistration.isMetricRegistrationAllowed");
-        System.out.println("processType = " + processType);
-        System.out.println("runningMode = " + runningMode);
+    /**
+     * Metrics are registered in the MMR only for normal server.
+     * Registration can also be forced if the AttributeDefinitions has the FORCE_REGISTRATION flag.
+     */
+    private boolean isMetricRegistrationAllowed(AttributeDefinition definition) {
+        if (definition.getFlags().contains(AttributeAccess.Flag.FORCE_REGISTRATION)) {
+            return true;
+        }
         if (processType ==  null || runningMode == null) {
             return true;
         }

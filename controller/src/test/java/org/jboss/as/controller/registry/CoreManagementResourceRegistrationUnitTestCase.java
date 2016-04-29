@@ -38,7 +38,9 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.PathElement;
+import org.jboss.as.controller.ProcessType;
 import org.jboss.as.controller.ResourceDefinition;
+import org.jboss.as.controller.RunningMode;
 import org.jboss.as.controller.SimpleOperationDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.management.AccessConstraintDefinition;
@@ -68,7 +70,7 @@ public class CoreManagementResourceRegistrationUnitTestCase {
 
     @Before
     public void setup() {
-        rootRegistration = ManagementResourceRegistration.Factory.create(new SimpleResourceDefinition(null, new NonResolvingResourceDescriptionResolver()));
+        rootRegistration = ManagementResourceRegistration.Factory.forEnvironment(ProcessType.EMBEDDED_SERVER, RunningMode.NORMAL).createRegistry(new SimpleResourceDefinition(null, new NonResolvingResourceDescriptionResolver()));
     }
 
     @Test
@@ -343,7 +345,7 @@ public class CoreManagementResourceRegistrationUnitTestCase {
                 );
             }
         };
-        ManagementResourceRegistration root = ManagementResourceRegistration.Factory.create(rootRd);
+        ManagementResourceRegistration root = ManagementResourceRegistration.Factory.forEnvironment(ProcessType.EMBEDDED_SERVER, RunningMode.NORMAL).createRegistry(rootRd);
 
         List<AccessConstraintDefinition> acds = root.getAccessConstraints();
         assertEquals(2, acds.size());

@@ -267,6 +267,7 @@ public class DeploymentAttributes {
             .setParameters(BYTES_NOT_NULL)
             .setReplyParameters(UPLOAD_HASH_REPLY)
             .setRuntimeOnly()
+            .forceRegistration()
             .addAccessConstraint(ApplicationTypeAccessConstraintDefinition.DEPLOYMENT)
             .build();
     public static final OperationDefinition DOMAIN_UPLOAD_BYTES_DEFINITION = new SimpleOperationDefinitionBuilder(ModelDescriptionConstants.UPLOAD_DEPLOYMENT_BYTES, DEPLOYMENT_RESOLVER)
@@ -274,6 +275,7 @@ public class DeploymentAttributes {
             .setReplyParameters(UPLOAD_HASH_REPLY)
             .withFlag(Flag.MASTER_HOST_CONTROLLER_ONLY)
             .setRuntimeOnly()
+            .forceRegistration()
             .addAccessConstraint(ApplicationTypeAccessConstraintDefinition.DEPLOYMENT)
             .build();
 
@@ -286,6 +288,7 @@ public class DeploymentAttributes {
             .setParameters(URL_NOT_NULL)
             .setReplyParameters(UPLOAD_HASH_REPLY)
             .setRuntimeOnly()
+            .forceRegistration()
             .addAccessConstraint(ApplicationTypeAccessConstraintDefinition.DEPLOYMENT)
             .build();
     public static final OperationDefinition DOMAIN_UPLOAD_URL_DEFINITION = new SimpleOperationDefinitionBuilder(ModelDescriptionConstants.UPLOAD_DEPLOYMENT_URL, DEPLOYMENT_RESOLVER)
@@ -293,6 +296,7 @@ public class DeploymentAttributes {
             .setReplyParameters(UPLOAD_HASH_REPLY)
             .withFlag(Flag.MASTER_HOST_CONTROLLER_ONLY)
             .setRuntimeOnly()
+            .forceRegistration()
             .addAccessConstraint(ApplicationTypeAccessConstraintDefinition.DEPLOYMENT)
             .build();
 
@@ -305,6 +309,7 @@ public class DeploymentAttributes {
             .setParameters(INPUT_STREAM_INDEX_NOT_NULL)
             .setReplyParameters(UPLOAD_HASH_REPLY)
             .setRuntimeOnly()
+            .forceRegistration()
             .addAccessConstraint(ApplicationTypeAccessConstraintDefinition.DEPLOYMENT)
             .build();
     public static final OperationDefinition DOMAIN_UPLOAD_STREAM_ATTACHMENT_DEFINITION = new SimpleOperationDefinitionBuilder(ModelDescriptionConstants.UPLOAD_DEPLOYMENT_STREAM, DEPLOYMENT_RESOLVER)
@@ -312,6 +317,7 @@ public class DeploymentAttributes {
             .setReplyParameters(UPLOAD_HASH_REPLY)
             .withFlag(Flag.MASTER_HOST_CONTROLLER_ONLY)
             .setRuntimeOnly()
+            .forceRegistration()
             .addAccessConstraint(ApplicationTypeAccessConstraintDefinition.DEPLOYMENT)
             .build();
 

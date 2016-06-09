@@ -53,6 +53,7 @@ public class SnapshotDeleteHandler implements OperationStepHandler {
     public static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(OPERATION_NAME, ControllerResolver.getResolver("snapshot"))
             .setParameters(NAME)
             .setRuntimeOnly()
+            .forceRegistration()
             .withFlag(OperationEntry.Flag.MASTER_HOST_CONTROLLER_ONLY)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SNAPSHOTS)
             .build();

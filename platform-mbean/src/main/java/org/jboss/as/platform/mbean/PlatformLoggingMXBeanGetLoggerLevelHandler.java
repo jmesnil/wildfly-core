@@ -47,6 +47,7 @@ public class PlatformLoggingMXBeanGetLoggerLevelHandler implements OperationStep
             .setParameters(CommonAttributes.LOGGER_NAME)
             .setReplyType(ModelType.STRING)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReadOnly()
             .build();
 

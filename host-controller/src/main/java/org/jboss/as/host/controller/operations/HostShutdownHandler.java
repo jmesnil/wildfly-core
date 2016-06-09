@@ -64,6 +64,7 @@ public class HostShutdownHandler implements OperationStepHandler {
             .addParameter(RESTART)
             .withFlag(OperationEntry.Flag.HOST_CONTROLLER_ONLY)
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     /**

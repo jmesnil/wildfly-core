@@ -142,6 +142,7 @@ public class BootErrorCollector {
                 ControllerResolver.getResolver("errors"))
                 .setReadOnly()
                 .setRuntimeOnly()
+                .forceRegistration()
                 .setReplyType(ModelType.LIST)
                 .setReplyParameters(OP_DEFINITION, FAILURE_MESSAGE, FAILED_SVC_AD, MISSING_DEPS_AD, TRANSITIVE_AD).build();
 

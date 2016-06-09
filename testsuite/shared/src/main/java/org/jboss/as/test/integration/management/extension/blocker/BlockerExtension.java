@@ -146,6 +146,7 @@ public class BlockerExtension implements Extension {
         private static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder("block", new NonResolvingResourceDescriptionResolver())
                 .setParameters(CALLER, TARGET_HOST, TARGET_SERVER, BLOCK_POINT, BLOCK_TIME)
                 .setRuntimeOnly()
+                .forceRegistration()
                 .build();
 
         @Override

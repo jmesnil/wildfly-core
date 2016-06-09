@@ -56,6 +56,7 @@ public class CleanObsoleteContentHandler implements OperationStepHandler {
     public static final SimpleOperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(OPERATION_NAME,
                 ServerDescriptions.getResourceDescriptionResolver(CONTENT))
                 .setRuntimeOnly()
+                .forceRegistration()
                 .setReplyType(ModelType.OBJECT)
                 .setReplyParameters(MARKED_CONTENT, DELETED_CONTENT)
                 .build();

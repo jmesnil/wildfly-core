@@ -39,6 +39,7 @@ import org.jboss.dmr.ModelNode;
 public class ThreadMXBeanResetPeakThreadCountHandler implements OperationStepHandler {
     static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(PlatformMBeanConstants.RESET_PEAK_THREAD_COUNT, PlatformMBeanUtil.getResolver(PlatformMBeanConstants.THREADING))
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
 

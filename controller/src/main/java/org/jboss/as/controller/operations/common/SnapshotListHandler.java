@@ -60,6 +60,7 @@ public class SnapshotListHandler implements OperationStepHandler {
             .setReplyParameters(DIRECTORY, NAMES)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .withFlag(OperationEntry.Flag.MASTER_HOST_CONTROLLER_ONLY)
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SNAPSHOTS)
             .build();

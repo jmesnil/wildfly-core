@@ -49,6 +49,7 @@ public class ServerResumeHandler implements OperationStepHandler {
 
     public static final SimpleOperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(ModelDescriptionConstants.RESUME, ServerDescriptions.getResourceDescriptionResolver())
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     public static final OperationDefinition DOMAIN_DEFINITION = new SimpleOperationDefinitionBuilder(OPERATION_NAME, ServerDescriptions.getResourceDescriptionResolver())

@@ -20,6 +20,7 @@ public class WriteConfigHandler implements OperationStepHandler {
 
     public static final SimpleOperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(OPERATION_NAME, ServerDescriptions.getResourceDescriptionResolver())
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     @Override

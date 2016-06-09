@@ -43,6 +43,7 @@ public class ThreadMXBeanFindMonitorDeadlockedThreadsHandler implements Operatio
             .setReplyType(ModelType.LIST)
             .setReplyValueType(ModelType.LONG)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReadOnly()
             .allowReturnNull()
             .build();

@@ -76,6 +76,7 @@ public class ServerShutdownHandler implements OperationStepHandler {
     public static final SimpleOperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(ModelDescriptionConstants.SHUTDOWN, ServerDescriptions.getResourceDescriptionResolver())
             .setParameters(RESTART, TIMEOUT)
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
 

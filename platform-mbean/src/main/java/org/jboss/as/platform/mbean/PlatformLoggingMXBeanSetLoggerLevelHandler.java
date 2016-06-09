@@ -45,6 +45,7 @@ public class PlatformLoggingMXBeanSetLoggerLevelHandler implements OperationStep
     static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(PlatformMBeanConstants.SET_LOGGER_LEVEL, PlatformMBeanUtil.getResolver(PlatformMBeanConstants.THREADING))
             .setParameters(CommonAttributes.LOGGER_NAME, CommonAttributes.LEVEL_NAME)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReadOnly()
             .build();
 

@@ -99,6 +99,7 @@ public class InMemoryAuditLogHandlerResourceDefinition extends AuditLogHandlerRe
                 new SimpleOperationDefinitionBuilder(OPERATION_NAME, getResourceDescriptionResolver())
                 .setReadOnly()
                 .setRuntimeOnly()
+                .forceRegistration()
                 .setReplyType(ModelType.LIST)
                 .setReplyValueType(ModelType.STRING)
                 .build(), new ShowInMemoryLogsHandler(auditLogger));

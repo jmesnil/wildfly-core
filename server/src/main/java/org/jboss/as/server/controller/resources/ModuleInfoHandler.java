@@ -97,6 +97,7 @@ public class ModuleInfoHandler implements OperationStepHandler {
     public static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder("module-info", ModuleLoadingResourceDefinition.INSTANCE.getResourceDescriptionResolver())
             .setParameters(MODULE_NAME, MODULE_SLOT)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReadOnly()
             .setReplyType(ModelType.OBJECT)
             .setReplyParameters(MODULE_NAME, MAIN_CLASS, FALLBACK_LOADER, DEPENDENCIES, RESOURCE_LOADERS)

@@ -110,8 +110,9 @@ public class AuditLogHandlerResourceDefinition extends SimpleResourceDefinition 
         resourceRegistration.registerOperationHandler(
                 new SimpleOperationDefinitionBuilder(
                         ModelDescriptionConstants.RECYCLE, getResourceDescriptionResolver())
-                            .setRuntimeOnly().
-                            build(),
+                            .setRuntimeOnly()
+                            .forceRegistration()
+                            .build(),
                 new HandlerRecycleHandler(auditLogger));
     }
 

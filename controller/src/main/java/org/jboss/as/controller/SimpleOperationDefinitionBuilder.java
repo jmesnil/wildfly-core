@@ -108,6 +108,16 @@ public class SimpleOperationDefinitionBuilder {
         return withFlag(OperationEntry.Flag.RUNTIME_ONLY);
     }
 
+    /**
+     * Adds the {@link OperationEntry.Flag#FORCE_REGISTRATION} flag.
+     *
+     * @return a builder that can be used to continue building the operation definition
+     */
+    public SimpleOperationDefinitionBuilder forceRegistration() {
+        return withFlag(OperationEntry.Flag.FORCE_REGISTRATION);
+    }
+
+
     public SimpleOperationDefinitionBuilder setReadOnly() {
         return withFlag(OperationEntry.Flag.READ_ONLY);
     }

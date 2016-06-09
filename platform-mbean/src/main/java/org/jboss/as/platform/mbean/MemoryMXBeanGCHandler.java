@@ -41,6 +41,7 @@ public class MemoryMXBeanGCHandler implements OperationStepHandler {
     public static final MemoryMXBeanGCHandler INSTANCE = new MemoryMXBeanGCHandler();
     static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(PlatformMBeanConstants.GC, PlatformMBeanUtil.getResolver(PlatformMBeanConstants.MEMORY))
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
 

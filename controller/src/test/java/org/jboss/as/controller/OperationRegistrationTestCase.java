@@ -25,12 +25,11 @@
  */
 package org.jboss.as.controller;
 
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ATTRIBUTES;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.INCLUDE_RUNTIME;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OPERATIONS;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.OUTCOME;
-import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.READ_RESOURCE_OPERATION;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RESULT;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUCCESS;
+import static org.jboss.dmr.ModelType.INT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -41,33 +40,32 @@ import java.util.concurrent.TimeUnit;
 
 import org.jboss.as.controller.client.ModelControllerClient;
 import org.jboss.as.controller.descriptions.NonResolvingResourceDescriptionResolver;
+import org.jboss.as.controller.descriptions.ResourceDescriptionResolver;
 import org.jboss.as.controller.operations.common.Util;
 import org.jboss.as.controller.operations.global.GlobalNotifications;
 import org.jboss.as.controller.operations.global.GlobalOperationHandlers;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
 import org.jboss.as.controller.registry.Resource;
 import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.ModelType;
 import org.jboss.msc.service.ServiceBuilder;
 import org.jboss.msc.service.ServiceContainer;
 import org.jboss.msc.service.ServiceName;
 import org.jboss.msc.service.ServiceTarget;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Test;
 
 /**
- * Tests cases for metrics registration.
+ * Tests cases for operation registration.
  *
- * Depending on the server environment (process type and running mode), resource metrics
- * may not be actually registered on the MMR (even if registerMetric is always called).
+ * Depending on the server environment (process type and running mode), runtime operations
+ * may not be actually registered on the MMR.
  */
-public class MetricsRegistrationTestCase {
+public class OperationRegistrationTestCase {
 
     private static final PathElement ELEMENT = PathElement.pathElement("testing", "resource");
     private static final PathAddress ADDRESS = PathAddress.pathAddress(ELEMENT);
-    private static final String TEST_METRIC = "test-metric";
-    private static final String FORCED_TEST_METRIC = "forced-test-metric";
+    private static final String TEST_OPERATION = "test-operation";
+    private static final String FORCED_TEST_OPERATION = "forced-test-operation";
 
     private static final Executor executor = Executors.newCachedThreadPool();
 
@@ -75,51 +73,48 @@ public class MetricsRegistrationTestCase {
     private ModelController controller;
     private ModelControllerClient client;
 
-    private void checkMetricRegistration(ProcessType processType, boolean metricIsRegistered) throws Exception {
+    private void checkOperationRegistration(ProcessType processType, boolean operationIsRegistered) throws Exception {
         setupController(processType, new TestResourceDefinition());
-        ModelNode description = getResult(client.execute(Util.getReadResourceDescriptionOperation(ADDRESS)));
-        assertEquals(description.toJSONString(false), metricIsRegistered, description.hasDefined(ATTRIBUTES, TEST_METRIC));
-        if (metricIsRegistered) {
-            checkTestMetric(TEST_METRIC, 1000);
+        ModelNode rrd = Util.getReadResourceDescriptionOperation(ADDRESS);
+        rrd.get(OPERATIONS).set(true);
+        ModelNode description = getResult(client.execute(rrd));
+        assertEquals(description.toJSONString(false), operationIsRegistered, description.hasDefined(OPERATIONS, TEST_OPERATION));
+        if (operationIsRegistered) {
+            checkOperation(TEST_OPERATION, 1000);
         }
-        // forced test metric is always registered
-        assertTrue(description.hasDefined(ATTRIBUTES, FORCED_TEST_METRIC));
-        checkTestMetric(FORCED_TEST_METRIC, 2000);
+        // forced operation is always registered
+        assertTrue(description.hasDefined(OPERATIONS, FORCED_TEST_OPERATION));
+        checkOperation(FORCED_TEST_OPERATION, 2000);
     }
 
     @Test
-    public void registerMetricOnEmbeddedServerRegistersTheMetric() throws Exception {
-        checkMetricRegistration(ProcessType.EMBEDDED_SERVER, true);
+    public void registerRuntimeOperationOnEmbeddedServerRegistersTheMetric() throws Exception {
+        checkOperationRegistration(ProcessType.EMBEDDED_SERVER, true);
     }
 
     @Test
-    public void registerMetricOnStandaloneServerRegistersTheMetric() throws Exception {
-        checkMetricRegistration(ProcessType.STANDALONE_SERVER, true);
+    public void registerRuntimeOperationOnStandaloneServerRegistersTheMetric() throws Exception {
+        checkOperationRegistration(ProcessType.STANDALONE_SERVER, true);
     }
 
     @Test
-    public void registerMetricOnDomainServerRegistersTheMetric() throws Exception {
-        checkMetricRegistration(ProcessType.DOMAIN_SERVER, true);
+    public void registerRuntimeOperationOnDomainServerRegistersTheMetric() throws Exception {
+        checkOperationRegistration(ProcessType.DOMAIN_SERVER, true);
     }
 
     @Test
-    public void registerMetricOnHostControllerDoesNotRegisterTheMetric() throws Exception {
-        checkMetricRegistration(ProcessType.HOST_CONTROLLER, false);
+    public void registerRuntimeOperationOnHostControllerDoesNotRegisterTheMetric() throws Exception {
+        checkOperationRegistration(ProcessType.HOST_CONTROLLER, false);
     }
     @Test
-    public void registerMetricOnEmbeddedHostControllerDoesNotRegisterTheMetric() throws Exception {
-        checkMetricRegistration(ProcessType.EMBEDDED_HOST_CONTROLLER, false);
+    public void registerRuntimeOperationOnEmbeddedHostControllerDoesNotRegisterTheMetric() throws Exception {
+        checkOperationRegistration(ProcessType.EMBEDDED_HOST_CONTROLLER, false);
     }
 
-    private void checkTestMetric(String metric, int expectedValue) throws Exception {
-        ModelNode result = getResult(client.execute(Util.getReadAttributeOperation(ADDRESS, metric)));
+    private void checkOperation(String operationName, int expectedValue) throws Exception {
+        ModelNode op = Util.getEmptyOperation(operationName, ADDRESS.toModelNode());
+        ModelNode result = getResult(client.execute(op));
         assertEquals(expectedValue, result.asInt());
-
-        ModelNode rr = Util.createEmptyOperation(READ_RESOURCE_OPERATION, ADDRESS);
-        rr.get(INCLUDE_RUNTIME).set(true);
-        result = getResult(client.execute(rr));
-        Assert.assertTrue(result.hasDefined(metric));
-        assertEquals(expectedValue, result.get(metric).asInt());
     }
 
     private ModelNode getResult(ModelNode result) {
@@ -155,7 +150,7 @@ public class MetricsRegistrationTestCase {
     private ManagementResourceRegistration setupController(ProcessType processType, TestResourceDefinition resourceDefinition) throws InterruptedException {
 
         System.out.println("=========  New Test \n");
-        container = ServiceContainer.Factory.create(TEST_METRIC);
+        container = ServiceContainer.Factory.create(TEST_OPERATION);
         ServiceTarget target = container.subTarget();
         ModelControllerService svc = new ModelControllerService(processType, resourceDefinition);
         ServiceBuilder<ModelController> builder = target.addService(ServiceName.of("ModelController"), svc);
@@ -195,15 +190,18 @@ public class MetricsRegistrationTestCase {
 
     private static class TestResourceDefinition extends SimpleResourceDefinition {
 
-        // metric is registered depending on the type of server for the MMR
-        private static final SimpleAttributeDefinition METRIC = new SimpleAttributeDefinitionBuilder(TEST_METRIC, ModelType.INT)
-                .setStorageRuntime()
-                .setUndefinedMetricValue(new ModelNode(0))
+        private static final ResourceDescriptionResolver RESOLVER = new NonResolvingResourceDescriptionResolver();
+        // runtime operation is registered depending on the type of server for the MMR
+        private static final OperationDefinition TEST_OP = new SimpleOperationDefinitionBuilder(TEST_OPERATION, RESOLVER)
+                .setReplyType(INT)
+                .setRuntimeOnly()
                 .build();
-        // metric is always registered
-        private static final SimpleAttributeDefinition FORCED_METRIC = new SimpleAttributeDefinitionBuilder(FORCED_TEST_METRIC, ModelType.INT)
+
+        // force runtime operation is always registered
+        private static final OperationDefinition FORCE_TEST_OP = new SimpleOperationDefinitionBuilder(FORCED_TEST_OPERATION, RESOLVER)
+                .setReplyType(INT)
+                .setRuntimeOnly()
                 .forceRegistration()
-                .setUndefinedMetricValue(new ModelNode(0))
                 .build();
 
         public TestResourceDefinition() {
@@ -212,9 +210,9 @@ public class MetricsRegistrationTestCase {
         }
 
         @Override
-        public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
-            resourceRegistration.registerMetric(METRIC, (context, operation) -> context.getResult().set(1000));
-            resourceRegistration.registerMetric(FORCED_METRIC, (context, operation) -> context.getResult().set(2000));
+        public void registerOperations(ManagementResourceRegistration resourceRegistration) {
+            resourceRegistration.registerOperationHandler(TEST_OP, (context, operation) -> context.getResult().set(1000));
+            resourceRegistration.registerOperationHandler(FORCE_TEST_OP, (context, operation) -> context.getResult().set(2000));
         }
     }
 }

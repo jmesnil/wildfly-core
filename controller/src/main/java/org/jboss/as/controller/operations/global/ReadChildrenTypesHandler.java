@@ -56,6 +56,7 @@ public class ReadChildrenTypesHandler implements OperationStepHandler {
             .setParameters(INCLUDE_ALIASES, INCLUDE_SINGLETONS)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.LIST)
             .setReplyValueType(ModelType.STRING)
             .build();

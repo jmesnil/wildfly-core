@@ -67,6 +67,7 @@ public class ReadAttributeGroupHandler extends AbstractMultiTargetHandler {
             .setParameters(NAME, INCLUDE_RUNTIME, INCLUDE_DEFAULTS, INCLUDE_ALIASES)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.LIST)
             .setReplyValueType(ModelType.PROPERTY)
             .build();

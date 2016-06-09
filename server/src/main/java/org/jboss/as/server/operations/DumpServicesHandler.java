@@ -47,6 +47,7 @@ public class DumpServicesHandler implements OperationStepHandler {
     private static final String OPERATION_NAME = "dump-services";
     public static final SimpleOperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(OPERATION_NAME, ServerDescriptions.getResourceDescriptionResolver())
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.STRING)
             .build();
     public static final DumpServicesHandler INSTANCE = new DumpServicesHandler();

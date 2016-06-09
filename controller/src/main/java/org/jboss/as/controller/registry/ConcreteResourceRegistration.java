@@ -229,6 +229,9 @@ final class ConcreteResourceRegistration extends AbstractResourceRegistration {
     @Override
     public void registerOperationHandler(OperationDefinition definition, OperationStepHandler handler, boolean inherited) {
         checkPermission();
+        if (!isOperationRegistrationAllowed(definition)) {
+            return;
+        }
         String opName = definition.getName();
         OperationEntry entry = new OperationEntry(definition, handler, inherited);
         writeLock.lock();
@@ -247,6 +250,27 @@ final class ConcreteResourceRegistration extends AbstractResourceRegistration {
         } finally {
             writeLock.unlock();
         }
+    }
+
+    /**
+     * Runtime operations are registered in the MMR only for normal server.
+     * Registration can also be forced if the OperationDefinition has the FORCE_REGISTRATION flag.
+     */
+    private boolean isOperationRegistrationAllowed(OperationDefinition definition) {
+        boolean forceRegistration = definition.getFlags().contains(OperationEntry.Flag.FORCE_REGISTRATION);
+        // always register operations that "forces" registration
+        if (forceRegistration) {
+            return true;
+        }
+        boolean runtimeOnly = definition.getFlags().contains(OperationEntry.Flag.RUNTIME_ONLY);
+        // always register non-runtime operation
+        if (!runtimeOnly) {
+            return true;
+        }
+        if (processType ==  null) {
+            return true;
+        }
+        return processType.isServer();
     }
 
     public void unregisterSubModel(final PathElement address) throws IllegalArgumentException {

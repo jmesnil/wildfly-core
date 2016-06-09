@@ -86,6 +86,7 @@ public class ServerResumeHandler implements OperationStepHandler {
     static OperationDefinition getOperationDefinition() {
         return new SimpleOperationDefinitionBuilder(OPERATION_NAME, HostResolver.getResolver("host.server"))
                 .setRuntimeOnly()
+                .forceRegistration()
                 .withFlag(OperationEntry.Flag.HOST_CONTROLLER_ONLY)
                 .build();
     }

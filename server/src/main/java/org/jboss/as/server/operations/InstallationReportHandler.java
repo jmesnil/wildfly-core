@@ -48,6 +48,7 @@ public class InstallationReportHandler extends AbstractInstallationReporter {
     public static final SimpleOperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(
             OPERATION_NAME, ServerDescriptions.getResourceDescriptionResolver())
             .setRuntimeOnly()
+            .forceRegistration()
             .setReadOnly()
             .setPrivateEntry()
             .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.READ_WHOLE_CONFIG)

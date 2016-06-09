@@ -148,6 +148,7 @@ public class ConfigurationChangeResourceDefinition extends SimpleResourceDefinit
                 DomainManagementResolver.getResolver(CORE, MANAGEMENT, SERVICE, CONFIGURATION_CHANGES))
                 .setReplyType(ModelType.STRING)
                 .setRuntimeOnly()
+                .forceRegistration()
                 .build();
         private static final ConfigurationChangesHandler INSTANCE = new ConfigurationChangesHandler(ConfigurationChangesCollector.INSTANCE);
         private static final Set<Action.ActionEffect> ADDRESS_EFFECT = EnumSet.of(Action.ActionEffect.ADDRESS);

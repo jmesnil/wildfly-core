@@ -63,6 +63,7 @@ public class ReadChildrenNamesHandler implements OperationStepHandler {
             .setParameters(CHILD_TYPE, INCLUDE_SINGLETONS)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.LIST)
             .setReplyValueType(ModelType.STRING)
             .build();

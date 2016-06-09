@@ -188,6 +188,7 @@ public class ModelControllerResourceDefinition extends SimpleResourceDefinition 
         static final OperationDefinition DEFINITION_DOMAIN = new SimpleOperationDefinitionBuilder(VoidOperationNoParams.OPERATION_NAME, new NonResolvingResourceDescriptionResolver())
                 .setReadOnly()
                 .setRuntimeOnly()
+                .forceRegistration()
                 .build();
         static final VoidOperationNoParams INSTANCE = new VoidOperationNoParams();
         static final String OPERATION_JMX_NAME = "voidNoParams";
@@ -225,6 +226,7 @@ public class ModelControllerResourceDefinition extends SimpleResourceDefinition 
                 .setParameters(param1, param2, param3, param4, param5)
                 .setReplyType(ModelType.STRING)
                 .setRuntimeOnly()
+                .forceRegistration()
                 .build();
 
         static final IntOperationWithParams INSTANCE_NO_EXPRESSIONS = new IntOperationWithParams(false);

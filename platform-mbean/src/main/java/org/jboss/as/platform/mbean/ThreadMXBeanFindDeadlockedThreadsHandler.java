@@ -43,6 +43,7 @@ public class ThreadMXBeanFindDeadlockedThreadsHandler implements OperationStepHa
             .setReplyType(ModelType.LIST)
             .setReplyValueType(ModelType.LONG)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReadOnly()
             .allowReturnNull()
             .build();

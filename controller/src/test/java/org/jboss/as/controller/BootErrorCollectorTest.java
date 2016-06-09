@@ -84,7 +84,8 @@ public class BootErrorCollectorTest {
             odb.setReadOnly();
         }
         if (runtimeOnly) {
-            odb.setRuntimeOnly();
+            odb.setRuntimeOnly()
+                .forceRegistration();
         }
         return constructor.newInstance(odb.build(), null, false);
     }

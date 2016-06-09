@@ -121,6 +121,7 @@ public class ReadResourceDescriptionHandler extends GlobalOperationHandlers.Abst
             .setParameters(OPERATIONS, NOTIFICATIONS, INHERITED, RECURSIVE, RECURSIVE_DEPTH, PROXIES, INCLUDE_ALIASES, ACCESS_CONTROL, LOCALE)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.OBJECT)
             .build();
 

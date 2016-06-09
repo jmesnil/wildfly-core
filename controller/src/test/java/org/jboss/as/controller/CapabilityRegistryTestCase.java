@@ -198,6 +198,7 @@ public class CapabilityRegistryTestCase extends AbstractControllerTestBase {
     private static final OperationDefinition RUNTIME_MOD_DEFINITION = new SimpleOperationDefinition("runtime-mod", NonResolvingResourceDescriptionResolver.INSTANCE);
     private static final OperationDefinition RUNTIME_ONLY_DEFINITION = new SimpleOperationDefinitionBuilder("runtime-only", NonResolvingResourceDescriptionResolver.INSTANCE)
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     private static ResourceBuilder createReloadTestResourceBuilder(PathElement address, RuntimeCapability... caps) {

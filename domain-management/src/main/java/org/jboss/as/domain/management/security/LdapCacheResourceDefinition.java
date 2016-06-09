@@ -124,6 +124,7 @@ public class LdapCacheResourceDefinition extends SimpleResourceDefinition {
             .setEntryType(OperationEntry.EntryType.PUBLIC)
             .addParameter(NAME)
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     public static final SimpleOperationDefinition FLUSH_CACHE_FULL = new SimpleOperationDefinitionBuilder(ModelDescriptionConstants.FLUSH_CACHE,
@@ -132,6 +133,7 @@ public class LdapCacheResourceDefinition extends SimpleResourceDefinition {
             .addParameter(NAME)
             .addParameter(DISTINGUISHED_NAME)
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     public static final SimpleOperationDefinition CONTAINS_NAME_ONLY = new SimpleOperationDefinitionBuilder(ModelDescriptionConstants.CONTAINS,
@@ -139,6 +141,7 @@ public class LdapCacheResourceDefinition extends SimpleResourceDefinition {
             .setEntryType(OperationEntry.EntryType.PUBLIC)
             .addParameter(NAME_REQUIRED)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyValueType(ModelType.BOOLEAN)
             .build();
 
@@ -148,6 +151,7 @@ public class LdapCacheResourceDefinition extends SimpleResourceDefinition {
             .addParameter(NAME)
             .addParameter(DISTINGUISHED_NAME)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyValueType(ModelType.BOOLEAN)
             .build();
 

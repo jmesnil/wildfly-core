@@ -57,6 +57,7 @@ public class ResolveExpressionHandler implements OperationStepHandler {
         .allowReturnNull()
         .setReadOnly()
         .setRuntimeOnly()
+        .forceRegistration()
         .addAccessConstraint(SensitiveTargetAccessConstraintDefinition.SYSTEM_PROPERTY)
         .build();
 

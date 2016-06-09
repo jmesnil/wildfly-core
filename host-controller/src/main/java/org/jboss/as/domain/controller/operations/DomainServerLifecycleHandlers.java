@@ -115,6 +115,7 @@ public class DomainServerLifecycleHandlers {
                 DomainResolver.getResolver(serverGroup ? ModelDescriptionConstants.SERVER_GROUP : ModelDescriptionConstants.DOMAIN))
                 .addParameter(BLOCKING)
                 .setRuntimeOnly()
+                .forceRegistration()
                 .build();
     }
 
@@ -124,6 +125,7 @@ public class DomainServerLifecycleHandlers {
                 .addParameter(BLOCKING)
                 .addParameter(TIMEOUT)
                 .setRuntimeOnly()
+                .forceRegistration()
                 .build();
     }
 
@@ -131,7 +133,8 @@ public class DomainServerLifecycleHandlers {
     private static OperationDefinition getSuspendOperationDefinition(boolean serverGroup, String operationName) {
         SimpleOperationDefinitionBuilder builder = new SimpleOperationDefinitionBuilder(operationName,
                 DomainResolver.getResolver(serverGroup ? ModelDescriptionConstants.SERVER_GROUP : ModelDescriptionConstants.DOMAIN))
-                .setRuntimeOnly();
+                .setRuntimeOnly()
+                .forceRegistration();
         if (operationName.equals(SUSPEND_SERVERS_NAME)) {
             builder.setParameters(TIMEOUT);
         }

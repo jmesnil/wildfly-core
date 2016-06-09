@@ -67,6 +67,7 @@ public class ReadChildrenResourcesHandler implements OperationStepHandler {
             .setParameters(CHILD_TYPE, RECURSIVE, RECURSIVE_DEPTH, PROXIES, INCLUDE_RUNTIME, INCLUDE_DEFAULTS)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.LIST)
             .setReplyValueType(ModelType.OBJECT)
             .build();

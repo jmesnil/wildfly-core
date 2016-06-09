@@ -95,6 +95,7 @@ public class ReadResourceHandler extends GlobalOperationHandlers.AbstractMultiTa
             .setParameters(RECURSIVE, RECURSIVE_DEPTH, PROXIES, INCLUDE_RUNTIME, INCLUDE_DEFAULTS, ATTRIBUTES_ONLY, INCLUDE_ALIASES)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.OBJECT)
             .build();
 
@@ -109,6 +110,7 @@ public class ReadResourceHandler extends GlobalOperationHandlers.AbstractMultiTa
             .setParameters(RESOLVE, RECURSIVE, RECURSIVE_DEPTH, PROXIES, INCLUDE_RUNTIME, INCLUDE_DEFAULTS, ATTRIBUTES_ONLY, INCLUDE_ALIASES)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.OBJECT)
             .build();
 

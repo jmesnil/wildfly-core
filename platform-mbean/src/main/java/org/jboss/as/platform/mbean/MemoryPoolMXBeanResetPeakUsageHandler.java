@@ -47,6 +47,7 @@ public class MemoryPoolMXBeanResetPeakUsageHandler implements OperationStepHandl
     static final MemoryPoolMXBeanResetPeakUsageHandler INSTANCE = new MemoryPoolMXBeanResetPeakUsageHandler();
     static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder("reset-peak-usage", PlatformMBeanUtil.getResolver(PlatformMBeanConstants.MEMORY_POOL))
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     private MemoryPoolMXBeanResetPeakUsageHandler() {

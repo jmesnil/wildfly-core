@@ -60,6 +60,7 @@ public class CancelActiveOperationHandler implements OperationStepHandler {
             .setReplyType(ModelType.BOOLEAN)
             .withFlag(OperationEntry.Flag.HOST_CONTROLLER_ONLY)
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     static final OperationStepHandler INSTANCE = new CancelActiveOperationHandler();

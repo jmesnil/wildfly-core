@@ -68,6 +68,7 @@ public class CancelNonProgressingOperationHandler implements OperationStepHandle
             .setReplyType(ModelType.STRING)
             .withFlag(OperationEntry.Flag.HOST_CONTROLLER_ONLY)
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     static final OperationStepHandler INSTANCE = new CancelNonProgressingOperationHandler();

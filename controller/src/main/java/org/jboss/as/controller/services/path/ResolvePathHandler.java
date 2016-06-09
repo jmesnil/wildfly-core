@@ -203,7 +203,8 @@ public class ResolvePathHandler implements OperationStepHandler {
                     .addParameter(ResolvePathHandler.RELATIVE_TO_ONLY)
                     .setReplyType(ModelType.STRING)
                     .setReadOnly()
-                    .setRuntimeOnly();
+                    .setRuntimeOnly()
+                    .forceRegistration();
             if (deprecatedSince != null) {
                 builder.setDeprecated(deprecatedSince);
             }

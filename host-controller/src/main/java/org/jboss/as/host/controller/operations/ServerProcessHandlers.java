@@ -48,12 +48,14 @@ public abstract class ServerProcessHandlers implements OperationStepHandler {
     public static final OperationDefinition DESTROY_OPERATION = new SimpleOperationDefinitionBuilder("destroy", HostResolver.getResolver("host.server"))
             .setReplyType(ModelType.UNDEFINED)
             .setRuntimeOnly()
+            .forceRegistration()
             .withFlag(OperationEntry.Flag.HOST_CONTROLLER_ONLY)
             .build();
 
     public static final OperationDefinition KILL_OPERATION = new SimpleOperationDefinitionBuilder("kill", HostResolver.getResolver("host.server"))
             .setReplyType(ModelType.UNDEFINED)
             .setRuntimeOnly()
+            .forceRegistration()
             .withFlag(OperationEntry.Flag.HOST_CONTROLLER_ONLY)
             .build();
     final ServerInventory serverInventory;

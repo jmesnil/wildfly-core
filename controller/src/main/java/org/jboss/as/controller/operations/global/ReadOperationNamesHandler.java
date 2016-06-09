@@ -63,6 +63,7 @@ public class ReadOperationNamesHandler implements OperationStepHandler {
     static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(READ_OPERATION_NAMES_OPERATION, ControllerResolver.getResolver("global"))
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setParameters(ACCESS_CONTROL)
             .setReplyType(ModelType.LIST)
             .setReplyValueType(ModelType.STRING)

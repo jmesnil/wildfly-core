@@ -100,6 +100,7 @@ public class ModuleLoadingResourceDefinition extends SimpleResourceDefinition {
         final OperationDefinition definition = new SimpleOperationDefinitionBuilder("list-resource-loader-paths", getResourceDescriptionResolver())
                 .addParameter(MODULE_NAME)
                 .setRuntimeOnly()
+                .forceRegistration()
                 .setReplyType(ModelType.LIST)
                 .setReplyValueType(ModelType.STRING)
                 .setDeprecated(ModelVersion.create(1, 4, 0))

@@ -49,6 +49,7 @@ public class ThreadMXBeanDumpAllThreadsHandler implements OperationStepHandler {
             .setReplyType(ModelType.LIST)
             .setReplyParameters(CommonAttributes.THREAD_INFO_ATTRIBUTES)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReadOnly()
             .build();
 

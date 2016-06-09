@@ -66,7 +66,11 @@ public final class OperationEntry {
         MASTER_HOST_CONTROLLER_ONLY,
         /** Operations with this flag do not affect the mode or change the installed services. The main intention for
          * this is to only make RUNTIME_ONLY methods on domain mode servers visible to end users. */
-        RUNTIME_ONLY
+        RUNTIME_ONLY,
+        /**
+         * Force the registration of the operation regardless of the actual process type.
+         */
+        FORCE_REGISTRATION
     }
 
     private final OperationDefinition operationDefinition;

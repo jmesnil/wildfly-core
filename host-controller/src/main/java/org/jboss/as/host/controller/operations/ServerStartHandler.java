@@ -69,6 +69,7 @@ public class ServerStartHandler implements OperationStepHandler {
                 .setParameters(SERVER, BLOCKING)
                 .setReplyType(ModelType.STRING)
                 .setRuntimeOnly()
+                .forceRegistration()
                 .withFlag(OperationEntry.Flag.HOST_CONTROLLER_ONLY);
         for (AttributeDefinition param : additional) {
             builder.addParameter(param);

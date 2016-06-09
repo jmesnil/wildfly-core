@@ -134,6 +134,7 @@ public class LoggingResourceDefinition extends TransformerResourceDefinition {
             .setReplyValueType(ModelType.STRING)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     static final SimpleOperationDefinition LIST_LOG_FILES = new SimpleOperationDefinitionBuilder("list-log-files", LoggingExtension.getResourceDescriptionResolver())
@@ -143,6 +144,7 @@ public class LoggingResourceDefinition extends TransformerResourceDefinition {
             .setReplyParameters(FILE_NAME, FILE_SIZE, LAST_MODIFIED_DATE)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     static final SimpleAttributeDefinition[] ATTRIBUTES = {

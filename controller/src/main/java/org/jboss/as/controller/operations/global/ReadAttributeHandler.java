@@ -65,6 +65,7 @@ public class ReadAttributeHandler extends GlobalOperationHandlers.AbstractMultiT
             .setParameters(GlobalOperationAttributes.NAME, GlobalOperationAttributes.INCLUDE_DEFAULTS)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.OBJECT)
             .build();
 
@@ -79,6 +80,7 @@ public class ReadAttributeHandler extends GlobalOperationHandlers.AbstractMultiT
             .setParameters(RESOLVE, GlobalOperationAttributes.NAME, GlobalOperationAttributes.INCLUDE_DEFAULTS)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .setReplyType(ModelType.OBJECT)
             .build();
 

@@ -116,6 +116,7 @@ class LogFileResourceDefinition extends SimpleResourceDefinition {
             .setReplyValueType(ModelType.STRING)
             .setReadOnly()
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     static final PathElement LOG_FILE_PATH = PathElement.pathElement("log-file");

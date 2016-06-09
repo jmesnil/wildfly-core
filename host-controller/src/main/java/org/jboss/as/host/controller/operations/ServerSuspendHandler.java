@@ -98,6 +98,7 @@ public class ServerSuspendHandler implements OperationStepHandler {
         return new SimpleOperationDefinitionBuilder(OPERATION_NAME, HostResolver.getResolver("host.server"))
                 .setParameters(TIMEOUT)
                 .setRuntimeOnly()
+                .forceRegistration()
                 .withFlag(OperationEntry.Flag.HOST_CONTROLLER_ONLY)
                 .build();
     }

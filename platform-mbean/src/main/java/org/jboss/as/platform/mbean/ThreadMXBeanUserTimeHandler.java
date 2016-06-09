@@ -45,6 +45,7 @@ public class ThreadMXBeanUserTimeHandler implements OperationStepHandler {
             .setParameters(CommonAttributes.ID)
             .setReplyType(ModelType.LONG)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReadOnly()
             .build();
 

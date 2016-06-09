@@ -68,6 +68,7 @@ public class ServerSuspendHandler implements OperationStepHandler {
     public static final SimpleOperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(ModelDescriptionConstants.SUSPEND, ServerDescriptions.getResourceDescriptionResolver())
             .setParameters(TIMEOUT)
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     public static final SimpleOperationDefinition DOMAIN_DEFINITION = new SimpleOperationDefinitionBuilder(ModelDescriptionConstants.SUSPEND, ServerDescriptions.getResourceDescriptionResolver())

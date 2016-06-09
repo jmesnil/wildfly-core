@@ -47,6 +47,7 @@ public class PlatformLoggingMXBeanGetParentLoggerNameHandler implements Operatio
             .setParameters(CommonAttributes.LOGGER_NAME)
             .setReplyType(ModelType.STRING)
             .setRuntimeOnly()
+            .forceRegistration()
             .setReadOnly()
             .build();
 

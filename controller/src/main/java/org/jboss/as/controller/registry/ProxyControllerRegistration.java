@@ -59,6 +59,7 @@ final class ProxyControllerRegistration extends AbstractResourceRegistration imp
             NonResolvingResourceDescriptionResolver.INSTANCE)
             .setPrivateEntry()
             .setRuntimeOnly()
+            .forceRegistration()
             .build();
 
     @SuppressWarnings("unused")

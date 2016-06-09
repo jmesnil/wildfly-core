@@ -60,6 +60,7 @@ public class ServerProcessReloadHandler extends ProcessReloadHandler<RunningMode
     public static final OperationDefinition DEFINITION = new SimpleOperationDefinitionBuilder(OPERATION_NAME, ServerDescriptions.getResourceDescriptionResolver("server"))
                                                                 .setParameters(ATTRIBUTES)
                                                                 .setRuntimeOnly()
+                                                                .forceRegistration()
                                                                 .build();
 
     private final ServerEnvironment environment;

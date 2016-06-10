@@ -252,27 +252,6 @@ final class ConcreteResourceRegistration extends AbstractResourceRegistration {
         }
     }
 
-    /**
-     * Runtime operations are registered in the MMR only for normal server.
-     * Registration can also be forced if the OperationDefinition has the FORCE_REGISTRATION flag.
-     */
-    private boolean isOperationRegistrationAllowed(OperationDefinition definition) {
-        boolean forceRegistration = definition.getFlags().contains(OperationEntry.Flag.FORCE_REGISTRATION);
-        // always register operations that "forces" registration
-        if (forceRegistration) {
-            return true;
-        }
-        boolean runtimeOnly = definition.getFlags().contains(OperationEntry.Flag.RUNTIME_ONLY);
-        // always register non-runtime operation
-        if (!runtimeOnly) {
-            return true;
-        }
-        if (processType ==  null) {
-            return true;
-        }
-        return processType.isServer();
-    }
-
     public void unregisterSubModel(final PathElement address) throws IllegalArgumentException {
         writeLock.lock();
         try {
@@ -403,6 +382,9 @@ final class ConcreteResourceRegistration extends AbstractResourceRegistration {
     public void registerReadWriteAttribute(final AttributeDefinition definition, final OperationStepHandler readHandler, final OperationStepHandler writeHandler) {
         assert definition.getUndefinedMetricValue() == null : "Attributes cannot have undefined metric value set";
         checkPermission();
+        if (!isAttributeRegistrationAllowed(definition)) {
+            return;
+        }
         final EnumSet<AttributeAccess.Flag> flags = definition.getFlags();
         AttributeAccess.Storage storage = (flags != null && flags.contains(AttributeAccess.Flag.STORAGE_RUNTIME)) ? Storage.RUNTIME : Storage.CONFIGURATION;
         AttributeAccess aa = new AttributeAccess(AccessType.READ_WRITE, storage, readHandler, writeHandler, definition, flags);
@@ -413,6 +395,9 @@ final class ConcreteResourceRegistration extends AbstractResourceRegistration {
     public void registerReadOnlyAttribute(final AttributeDefinition definition, final OperationStepHandler readHandler) {
         assert definition.getUndefinedMetricValue() == null : "Attributes cannot have undefined metric value set";
         checkPermission();
+        if (!isAttributeRegistrationAllowed(definition)) {
+            return;
+        }
         final EnumSet<AttributeAccess.Flag> flags = definition.getFlags();
         AttributeAccess.Storage storage = (flags != null && flags.contains(AttributeAccess.Flag.STORAGE_RUNTIME)) ? Storage.RUNTIME : Storage.CONFIGURATION;
         AttributeAccess aa = new AttributeAccess(AccessType.READ_ONLY, storage, readHandler, null, definition, flags);
@@ -487,7 +472,50 @@ final class ConcreteResourceRegistration extends AbstractResourceRegistration {
      * Registration can also be forced if the AttributeDefinitions has the FORCE_REGISTRATION flag.
      */
     private boolean isMetricRegistrationAllowed(AttributeDefinition definition) {
-        if (definition.getFlags().contains(AttributeAccess.Flag.FORCE_REGISTRATION)) {
+        boolean forceRegistration = definition.getFlags().contains(AttributeAccess.Flag.FORCE_REGISTRATION);
+        // always register operations that "forces" registration
+        if (forceRegistration) {
+            return true;
+        }
+        if (processType ==  null) {
+            return true;
+        }
+        return processType.isServer();
+    }
+
+    /**
+     * Runtime attributes are registered in the MMR only for normal server.
+     * Registration can also be forced if the AttributeDefinitions has the FORCE_REGISTRATION flag.
+     */
+    private boolean isAttributeRegistrationAllowed(AttributeDefinition definition) {
+        boolean forceRegistration = definition.getFlags().contains(AttributeAccess.Flag.FORCE_REGISTRATION);
+        // always register attributes that "forces" registration
+        if (forceRegistration) {
+            return true;
+        }
+        boolean storageRuntime = definition.getFlags().contains(AttributeAccess.Flag.STORAGE_RUNTIME);
+        if (!storageRuntime) {
+            return true;
+        }
+        if (processType ==  null) {
+            return true;
+        }
+        return processType.isServer();
+    }
+
+    /**
+     * Runtime operations are registered in the MMR only for normal server.
+     * Registration can also be forced if the OperationDefinition has the FORCE_REGISTRATION flag.
+     */
+    private boolean isOperationRegistrationAllowed(OperationDefinition definition) {
+        boolean forceRegistration = definition.getFlags().contains(OperationEntry.Flag.FORCE_REGISTRATION);
+        // always register operations that "forces" registration
+        if (forceRegistration) {
+            return true;
+        }
+        boolean runtimeOnly = definition.getFlags().contains(OperationEntry.Flag.RUNTIME_ONLY);
+        // always register non-runtime operation
+        if (!runtimeOnly) {
             return true;
         }
         if (processType ==  null) {

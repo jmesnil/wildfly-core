@@ -22,11 +22,16 @@
 
 package org.jboss.as.controller;
 
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.ATTRIBUTE_VALUE_WRITTEN_NOTIFICATION;
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.RUNTIME_CONFIGURATION_STATE;
 import static org.jboss.as.controller.logging.ControllerLogger.ROOT_LOGGER;
 
+import java.beans.PropertyChangeListener;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.ServiceLoader;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.RejectedExecutionException;
 
@@ -40,10 +45,13 @@ import org.jboss.as.controller.client.OperationAttachments;
 import org.jboss.as.controller.client.OperationMessageHandler;
 import org.jboss.as.controller.client.OperationResponse;
 import org.jboss.as.controller.descriptions.DescriptionProvider;
+import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.extension.MutableRootResourceRegistrationProvider;
 import org.jboss.as.controller.logging.ControllerLogger;
+import org.jboss.as.controller.notification.Notification;
 import org.jboss.as.controller.notification.NotificationSupport;
 import org.jboss.as.controller.operations.common.Util;
+import org.jboss.as.controller.operations.global.GlobalNotifications;
 import org.jboss.as.controller.persistence.ConfigurationPersistenceException;
 import org.jboss.as.controller.persistence.ConfigurationPersister;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -81,6 +89,7 @@ public abstract class AbstractControllerService implements Service<ModelControll
      * @see #BOOT_STACK_SIZE_PROPERTY
      */
     public static final int DEFAULT_BOOT_STACK_SIZE = 2 * 1024 * 1024;
+
 
     private static int getBootStackSize() {
         String prop = WildFlySecurityManager.getPropertyPrivileged(BOOT_STACK_SIZE_PROPERTY, null);
@@ -126,6 +135,17 @@ public abstract class AbstractControllerService implements Service<ModelControll
     private final ManagedAuditLogger auditLogger;
     private final BootErrorCollector bootErrorCollector;
     private final CapabilityRegistry capabilityRegistry;
+    private PropertyChangeListener runtimeConfigurationStateChangeListener;
+    private List<ControlledProcessStateListener> controlledProcessStateListeners = new ArrayList<>();
+    private PropertyChangeListener controlledProcessStateListenersChangeListener = evt -> {
+        if ("currentState".equals(evt.getPropertyName())) {
+            ControlledProcessState.State oldValue = (ControlledProcessState.State) evt.getOldValue();
+            ControlledProcessState.State newValue = (ControlledProcessState.State) evt.getNewValue();
+            for (ControlledProcessStateListener listener: controlledProcessStateListeners) {
+                listener.stateChanged(oldValue, newValue);
+            }
+        }
+    };
 
     /**
      * Construct a new instance.
@@ -280,6 +300,44 @@ public abstract class AbstractControllerService implements Service<ModelControll
         final ExecutorService executorService = injectedExecutorService.getOptionalValue();
 
         final NotificationSupport notificationSupport = NotificationSupport.Factory.create(executorService);
+        runtimeConfigurationStateChangeListener = evt -> {
+            if ("currentState".equals(evt.getPropertyName())) {
+                ModelNode oldValue = new ModelNode(evt.getOldValue().toString());
+                ModelNode newValue = new ModelNode(evt.getNewValue().toString());
+
+                ModelNode data = new ModelNode();
+                data.get(ModelDescriptionConstants.NAME).set(RUNTIME_CONFIGURATION_STATE);
+                data.get(GlobalNotifications.OLD_VALUE).set(oldValue);
+                data.get(GlobalNotifications.NEW_VALUE).set(newValue);
+                Notification notification = new Notification(ATTRIBUTE_VALUE_WRITTEN_NOTIFICATION, PathAddress.EMPTY_ADDRESS, ControllerLogger.ROOT_LOGGER.attributeValueWritten(RUNTIME_CONFIGURATION_STATE, oldValue, newValue), data);
+                System.err.println(">>> core notification = " + notification);
+                notificationSupport.emit(notification);
+            }
+        };
+        processState.getService().addPropertyChangeListener(runtimeConfigurationStateChangeListener);
+        controlledProcessStateListeners.add((oldState, newState) -> {
+            System.err.println("Process state changed from " + oldState + " to " + newState);
+            /*
+            MBeanServer server = ManagementFactory.getPlatformMBeanServer();
+            try {
+                Object errors = server.invoke(ObjectName.getInstance("jboss.as:core-service=management"), "read-boot-errors", new Object[0], new String[0]);
+                System.out.println("errors = " + errors);
+                CompositeData[] data = (CompositeData[]) errors;
+                System.out.println("# of errors = " + data.length);
+                for (CompositeData d : data) {
+                    System.out.println("d = " + d.getCompositeType());
+                    Set<String> keys = d.getCompositeType().keySet();
+                    for (String key : keys) {
+                        Object info = d.get(key);
+                        System.out.println("\t" + key + " = " + info);
+                    }
+                }
+            } catch (Throwable e) {
+                e.printStackTrace();
+            }
+            */
+        });
+        processState.getService().addPropertyChangeListener(controlledProcessStateListenersChangeListener);
         WritableAuthorizerConfiguration authorizerConfig = authorizer.getWritableAuthorizerConfiguration();
         authorizerConfig.reset();
         ManagementResourceRegistration rootResourceRegistration = ManagementResourceRegistration.Factory.forProcessType(processType).createRegistration(rootResourceDefinition, authorizerConfig, capabilityRegistry);
@@ -473,6 +531,7 @@ public abstract class AbstractControllerService implements Service<ModelControll
         capabilityRegistry.publish();
         controller = null;
 
+        final CountDownLatch latch = new CountDownLatch(1);
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -482,7 +541,13 @@ public abstract class AbstractControllerService implements Service<ModelControll
                     try {
                         authorizer.shutdown();
                     } finally {
-                        context.complete();
+                        try {
+                            latch.await();
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        } finally {
+                            context.complete();
+                        }
                     }
                 }
             }
@@ -500,6 +565,10 @@ public abstract class AbstractControllerService implements Service<ModelControll
                 executorShutdown.start();
             }
         } finally {
+            processState.getService().removePropertyChangeListener(runtimeConfigurationStateChangeListener);
+            processState.getService().removePropertyChangeListener(controlledProcessStateListenersChangeListener);
+            latch.countDown();
+
             context.asynchronous();
         }
     }

@@ -46,6 +46,8 @@ class CoreManagementSubsystemParser_1_0 extends PersistentResourceXMLParser {
 
     static {
         xmlDescription = builder(CoreManagementExtension.SUBSYSTEM_PATH, NAMESPACE)
+                .addChild(builder(CoreManagementExtension.PROCESS_STATE_LISTENERS_PATH)
+                        .addAttribute(ProcessStateListenerResourceDefinition.PROCESS_STATE_LISTENERS))
                 .build();
     }
 

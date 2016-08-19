@@ -22,6 +22,7 @@
 
 package org.wildfly.extension.core.management;
 
+import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SERVICE;
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SUBSYSTEM;
 
 import org.jboss.as.controller.Extension;
@@ -41,6 +42,7 @@ import org.jboss.as.controller.registry.ManagementResourceRegistration;
 public class CoreManagementExtension implements Extension {
     public static final String SUBSYSTEM_NAME = "core-management";
     static final PathElement SUBSYSTEM_PATH = PathElement.pathElement(SUBSYSTEM, SUBSYSTEM_NAME);
+    static final PathElement PROCESS_STATE_LISTENERS_PATH = PathElement.pathElement(SERVICE, "process-state-listeners");
 
     static final String RESOURCE_NAME = CoreManagementExtension.class.getPackage().getName() + ".LocalDescriptions";
 
@@ -61,6 +63,9 @@ public class CoreManagementExtension implements Extension {
     public void initialize(ExtensionContext context) {
         final SubsystemRegistration subsystem = context.registerSubsystem(SUBSYSTEM_NAME, CURRENT_VERSION);
         subsystem.registerXMLElementWriter(CoreManagementSubsystemParser_1_0.INSTANCE);
+
+        //This subsystem should be runnable on a host
+        subsystem.setHostCapable();
 
         ManagementResourceRegistration registration = subsystem.registerSubsystemModel(new CoreManagementRootResourceDefinition());
         registration.registerOperationHandler(GenericSubsystemDescribeHandler.DEFINITION, GenericSubsystemDescribeHandler.INSTANCE);

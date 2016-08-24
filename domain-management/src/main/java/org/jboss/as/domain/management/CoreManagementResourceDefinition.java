@@ -30,17 +30,9 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
-import org.jboss.as.controller.AttributeDefinition;
 import org.jboss.as.controller.BootErrorCollector;
-import org.jboss.as.controller.ObjectListAttributeDefinition;
-import org.jboss.as.controller.ObjectTypeAttributeDefinition;
-import org.jboss.as.controller.OperationContext;
-import org.jboss.as.controller.OperationFailedException;
-import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
-import org.jboss.as.controller.PropertiesAttributeDefinition;
 import org.jboss.as.controller.ResourceDefinition;
-import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.access.management.AccessConstraintUtilizationRegistry;
 import org.jboss.as.controller.access.management.DelegatingConfigurableAuthorizer;
@@ -55,8 +47,6 @@ import org.jboss.as.domain.management.audit.EnvironmentNameReader;
 import org.jboss.as.domain.management.connections.ldap.LdapConnectionResourceDefinition;
 import org.jboss.as.domain.management.controller.ManagementControllerResourceDefinition;
 import org.jboss.as.domain.management.security.SecurityRealmResourceDefinition;
-import org.jboss.dmr.ModelNode;
-import org.jboss.dmr.ModelType;
 
 /**
  * A {@link org.jboss.as.controller.ResourceDefinition} for the the core management resource.
@@ -69,17 +59,6 @@ import org.jboss.dmr.ModelType;
 public class CoreManagementResourceDefinition extends SimpleResourceDefinition {
 
     public static final PathElement PATH_ELEMENT = PathElement.pathElement(CORE_SERVICE, MANAGEMENT);
-    private static final AttributeDefinition PROPERTIES = new PropertiesAttributeDefinition.Builder("properties", true)
-            .build();
-    private static final AttributeDefinition CLASS = SimpleAttributeDefinitionBuilder.create("class", ModelType.STRING)
-            .build();
-    private static final AttributeDefinition MODULE = SimpleAttributeDefinitionBuilder.create("module", ModelType.STRING)
-            .build();
-    private static final ObjectTypeAttributeDefinition PROCESS_STATE_LISTENER = ObjectTypeAttributeDefinition.create("process-state-listeners", CLASS, MODULE, PROPERTIES)
-            .build();
-    private static final AttributeDefinition PROCESS_STATE_LISTENERS = ObjectListAttributeDefinition.Builder.of("process-state-listeners", PROCESS_STATE_LISTENER)
-            .setAllowNull(true)
-            .build();
 
     public static void registerDomainResource(Resource parent, AccessConstraintUtilizationRegistry registry) {
         Resource coreManagement = Resource.Factory.create();
@@ -110,20 +89,6 @@ public class CoreManagementResourceDefinition extends SimpleResourceDefinition {
     }
 
     @Override
-    public void registerAttributes(ManagementResourceRegistration resourceRegistration) {
-        super.registerAttributes(resourceRegistration);
-
-        resourceRegistration.registerReadWriteAttribute(PROCESS_STATE_LISTENERS, null, new OperationStepHandler() {
-            @Override
-            public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
-                System.out.println("context = " + context);
-                System.out.println("operation = " + operation);
-
-            }
-        });
-    }
-
-    @Override
     public void registerChildren(ManagementResourceRegistration resourceRegistration) {
         if (environment != Environment.DOMAIN) {
             resourceRegistration.registerSubModel(ManagementControllerResourceDefinition.INSTANCE);
@@ -131,6 +96,7 @@ public class CoreManagementResourceDefinition extends SimpleResourceDefinition {
             resourceRegistration.registerSubModel(LdapConnectionResourceDefinition.newInstance());
             // Configuration Changes
             resourceRegistration.registerSubModel(ConfigurationChangeResourceDefinition.INSTANCE);
+            resourceRegistration.registerSubModel(ProcessStateListenerResourceDefinition.INSTANCE);
         }
 
         for (ResourceDefinition current : interfaces) {

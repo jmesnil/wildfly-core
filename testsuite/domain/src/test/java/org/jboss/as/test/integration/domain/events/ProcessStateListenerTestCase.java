@@ -123,6 +123,12 @@ public class ProcessStateListenerTestCase {
         addListener.get("process-state-listeners").set(listeners);
         executeForResult(addListener, domainMasterLifecycleUtil.getDomainClient());
 
+        ModelNode removeJmxSubsystemListener = Util.createRemoveOperation(domainMasterLifecycleUtil.getAddress()
+                .append("subsystem", "jmx"));
+        executeForResult(removeJmxSubsystemListener, domainMasterLifecycleUtil.getDomainClient());
+
+        reload(testSupport);
+
         ModelNode shutdown = Util.createEmptyOperation("shutdown", domainMasterLifecycleUtil.getAddress());
         executeForResult(shutdown, domainMasterLifecycleUtil.getDomainClient());
 
@@ -130,11 +136,19 @@ public class ProcessStateListenerTestCase {
 
         List<String> output = Files.readAllLines(tempFile.toPath());
 
-        assertEquals(1, output.size());
-        assertEquals("HOST_CONTROLLER NORMAL running stopping", output.get(0));
+        assertEquals(output.toString(), 2, output.size());
+        assertEquals("HOST_CONTROLLER NORMAL running reload-required", output.get(0));
+        assertEquals("HOST_CONTROLLER NORMAL reload-required stopping", output.get(1));
 
         tempFile.delete();
 
         fail("wth");
+    }
+
+    private void reload(DomainTestSupport testSupport) throws Exception {
+        ModelNode reload = Util.createEmptyOperation("reload", testSupport.getDomainMasterLifecycleUtil().getAddress());
+        testSupport.getDomainMasterLifecycleUtil().executeAwaitConnectionClosed(reload);
+        testSupport.getDomainMasterLifecycleUtil().connect();
+        testSupport.getDomainMasterLifecycleUtil().awaitHostController(System.currentTimeMillis());
     }
 }

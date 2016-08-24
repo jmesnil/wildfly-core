@@ -153,6 +153,7 @@ public enum Element {
     PLUG_INS("plug-ins"),
     POINT_TO_POINT("point-to-point"),
     PRINCIPAL_TO_GROUP("principal-to-group"),
+    PROCESS_STATE_LISTENERS("process-state-listeners"),
     PROFILE("profile"),
     PROFILES("profiles"),
     PROPERTY("property"),

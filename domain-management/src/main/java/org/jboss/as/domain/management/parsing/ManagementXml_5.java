@@ -215,6 +215,10 @@ class ManagementXml_5 extends ManagementXml {
                     parseConfigurationChanges(reader, managementAddress, list);
                     break;
                 }
+                case PROCESS_STATE_LISTENERS: {
+                    parseProcessStateListeners(reader, managementAddress, list);
+                    break;
+                }
                 default: {
                     throw unexpectedElement(reader);
                 }
@@ -252,6 +256,38 @@ class ManagementXml_5 extends ManagementXml {
         list.add(add);
         if(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
              throw unexpectedElement(reader);
+        }
+    }
+
+
+    private void parseProcessStateListeners(final XMLExtendedStreamReader reader, final ModelNode address,
+                                            final List<ModelNode> list) throws XMLStreamException {
+        /*
+        PathAddress operationAddress = PathAddress.pathAddress(address);
+        operationAddress = operationAddress.append(ProcessStateListenerResourceDefinition.PATH);
+        final ModelNode add = Util.createAddOperation(PathAddress.pathAddress(operationAddress));
+        final int count = reader.getAttributeCount();
+        for (int i = 0; i < count; i++) {
+            final String value = reader.getAttributeValue(i);
+            if (!isNoNamespaceAttribute(reader, i)) {
+                throw unexpectedAttribute(reader, i);
+            } else {
+                final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
+                switch (attribute) {
+                    case MAX_HISTORY: {
+                        ConfigurationChangeResourceDefinition.MAX_HISTORY.parseAndSetParameter(value, add, reader);
+                        break;
+                    }
+                    default: {
+                        throw unexpectedAttribute(reader, i);
+                    }
+                }
+            }
+        }
+        list.add(add);
+        */
+        if(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            throw unexpectedElement(reader);
         }
     }
 
@@ -1875,6 +1911,7 @@ class ManagementXml_5 extends ManagementXml {
         boolean accessAuthorizationDefined = accessAuthorization != null && accessAuthorization.isDefined();
         boolean hasServerGroupRoles = accessAuthorizationDefined && accessAuthorization.hasDefined(SERVER_GROUP_SCOPED_ROLE);
         boolean hasConfigurationChanges = management.hasDefined(ModelDescriptionConstants.SERVICE, ModelDescriptionConstants.CONFIGURATION_CHANGES);
+        boolean hasProcessStateListeners = management.hasDefined(ModelDescriptionConstants.SERVICE, "process-state-listeners");
         boolean hasHostRoles = accessAuthorizationDefined && (accessAuthorization.hasDefined(HOST_SCOPED_ROLE) || accessAuthorization.hasDefined(HOST_SCOPED_ROLES));
         boolean hasRoleMapping = accessAuthorizationDefined && accessAuthorization.hasDefined(ROLE_MAPPING);
         Map<String, Map<String, Set<String>>> configuredAccessConstraints = AccessControlXml.getConfiguredAccessConstraints(accessAuthorization);
@@ -1891,6 +1928,9 @@ class ManagementXml_5 extends ManagementXml {
         writer.writeStartElement(Element.MANAGEMENT.getLocalName());
         if(hasConfigurationChanges) {
             writeConfigurationChanges(writer, management.get(ModelDescriptionConstants.SERVICE, ModelDescriptionConstants.CONFIGURATION_CHANGES));
+        }
+        if (hasProcessStateListeners) {
+            writeProcessStateListeners(writer, management.get(ModelDescriptionConstants.SERVICE, "process-state-listeners"));
         }
 
         if (hasSecurityRealm) {
@@ -2320,4 +2360,8 @@ class ManagementXml_5 extends ManagementXml {
         writer.writeEndElement();
     }
 
+    private void writeProcessStateListeners(XMLExtendedStreamWriter writer, ModelNode processStateListeners) throws XMLStreamException {
+        writer.writeStartElement(Element.PROCESS_STATE_LISTENERS.getLocalName());
+        writer.writeEndElement();
+    }
 }

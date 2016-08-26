@@ -23,8 +23,9 @@
 package org.jboss.as.domain.management;
 
 import java.beans.PropertyChangeListener;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 
 import org.jboss.as.controller.ControlledProcessState;
 import org.jboss.as.controller.ControlledProcessStateService;
@@ -40,19 +41,21 @@ import org.jboss.msc.value.InjectedValue;
 
 /**
  * @author <a href="http://jmesnil.net/">Jeff Mesnil</a> (c) 2016 Red Hat inc.
+ *
+ * TODO use an Executor to run any ControlledProcessStateListener code
  */
 public class ControlledProcessStateListenerService implements Service<Void> {
-    private static final ServiceName SERVICE_NAME = ServiceName.JBOSS.append("core", "management", "process-state-listeners");
+    static final ServiceName SERVICE_NAME = ServiceName.JBOSS.append("core", "management", "process-state-listeners");
 
     private final InjectedValue<ControlledProcessStateService> controlledProcessStateService = new InjectedValue<>();
     private final PropertyChangeListener propertyChangeListener;
-    private final Collection<ControlledProcessStateListener> listeners;
+    private final List<ControlledProcessStateListener> listeners;
+    private final List<Map<String, String>> properties;
 
-    public ControlledProcessStateListenerService(ProcessType processType, RunningMode runningMode, Collection<ControlledProcessStateListener> listeners) {
-        this.listeners = Collections.unmodifiableCollection(listeners);
+    public ControlledProcessStateListenerService(ProcessType processType, RunningMode runningMode, List<ControlledProcessStateListener> listeners, List<Map<String, String>> properties) {
+        this.listeners = Collections.unmodifiableList(listeners);
+        this.properties = Collections.unmodifiableList(properties);
         propertyChangeListener = evt -> {
-            System.out.println("ControlledProcessStateListenerService.ControlledProcessStateListenerService");
-            System.out.println("evt = [" + evt + "]");
             if ("currentState".equals(evt.getPropertyName())) {
                 ControlledProcessState.State oldState = (ControlledProcessState.State) evt.getOldValue();
                 ControlledProcessState.State newState = (ControlledProcessState.State) evt.getNewValue();
@@ -65,10 +68,8 @@ public class ControlledProcessStateListenerService implements Service<Void> {
     }
 
 
-    static void install(ServiceTarget serviceTarget, ProcessType processType, RunningMode runningMode, Collection<ControlledProcessStateListener> listeners) {
-        System.err.println("ControlledProcessStateListenerService.install");
-        System.err.println("serviceTarget = [" + serviceTarget + "], processType = [" + processType + "], runningMode = [" + runningMode + "], listeners = [" + listeners + "]");
-        ControlledProcessStateListenerService service = new ControlledProcessStateListenerService(processType, runningMode, listeners);
+    static void install(ServiceTarget serviceTarget, ProcessType processType, RunningMode runningMode, List<ControlledProcessStateListener> listeners, List<Map<String, String>> properties) {
+        ControlledProcessStateListenerService service = new ControlledProcessStateListenerService(processType, runningMode, listeners, properties);
 
         serviceTarget.addService(SERVICE_NAME, service)
                 .addDependency(ControlledProcessStateService.SERVICE_NAME, ControlledProcessStateService.class, service.controlledProcessStateService)
@@ -77,13 +78,17 @@ public class ControlledProcessStateListenerService implements Service<Void> {
 
     @Override
     public void start(StartContext context) throws StartException {
-        System.err.println("ControlledProcessStateListenerService.start");
+        for (int i = 0; i < listeners.size(); i++) {
+            ControlledProcessStateListener listener = listeners.get(i);
+            Map<String, String> properties = this.properties.get(i);
+            listener.init(properties);
+        }
+
         controlledProcessStateService.getValue().addPropertyChangeListener(propertyChangeListener);
     }
 
     @Override
     public void stop(StopContext context) {
-        System.err.println("ControlledProcessStateListenerService.stop");
         controlledProcessStateService.getValue().removePropertyChangeListener(propertyChangeListener);
         for (ControlledProcessStateListener listener: listeners) {
             listener.cleanup();

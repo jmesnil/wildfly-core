@@ -27,7 +27,7 @@ import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.MAN
 import static org.jboss.as.controller.descriptions.ModelDescriptionConstants.SERVICE;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 import org.jboss.as.controller.AbstractAddStepHandler;
@@ -83,8 +83,7 @@ public class ProcessStateListenerResourceDefinition extends SimpleResourceDefini
         resourceRegistration.registerReadWriteAttribute(PROCESS_STATE_LISTENERS, null, new OperationStepHandler() {
             @Override
             public void execute(OperationContext context, ModelNode operation) throws OperationFailedException {
-                System.out.println("context = " + context);
-                System.out.println("operation = " + operation);
+                // TODO remove the ControlledProcessStateListenerService and install it again?
             }
         });
     }
@@ -102,31 +101,29 @@ public class ProcessStateListenerResourceDefinition extends SimpleResourceDefini
 
         @Override
         protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-            System.err.println("ProcessStateListenerAddHandler.performRuntime");
-            System.err.println("context = [" + context + "], operation = [" + operation + "], model = [" + model + "]");
-
-            Collection<ControlledProcessStateListener> listeners = new ArrayList<ControlledProcessStateListener>();
+            List<ControlledProcessStateListener> listeners = new ArrayList<>();
+            List<Map<String, String>> properties = new ArrayList<>();
             ModelNode listenersModel = PROCESS_STATE_LISTENERS.resolveModelAttribute(context, model);
             for (ModelNode listenerModel: listenersModel.asList()) {
                 String className = CLASS.resolveModelAttribute(context, listenerModel).asString();
                 String moduleIdentifier = MODULE.resolveModelAttribute(context, listenerModel).asString();
-                Map<String, String> properties = PROPERTIES.unwrap(context, listenerModel);
 
                 ControlledProcessStateListener listener = newInstance(className, moduleIdentifier);
-                System.err.println("listener = " + listener);
-                listener.init(properties);
 
                 listeners.add(listener);
+
+                Map<String, String> props = PROPERTIES.unwrap(context, listenerModel);
+                properties.add(props);
             }
 
             ControlledProcessStateListenerService.install(context.getServiceTarget(),
                     context.getProcessType(),
                     context.getRunningMode(),
-                    listeners);
+                    listeners,
+                    properties);
         }
 
         private static ControlledProcessStateListener newInstance(String className, String moduleIdentifier) throws OperationFailedException {
-
             ModuleIdentifier moduleID = ModuleIdentifier.fromString(moduleIdentifier);
             final Module module;
             try {
@@ -148,8 +145,7 @@ public class ProcessStateListenerResourceDefinition extends SimpleResourceDefini
 
         @Override
         protected void performRuntime(OperationContext context, ModelNode operation, ModelNode model) throws OperationFailedException {
-            System.out.println("ProcessStateListenerRemoveHandler.performRuntime");
-            System.out.println("context = [" + context + "], operation = [" + operation + "], model = [" + model + "]");
+            context.removeService(ControlledProcessStateListenerService.SERVICE_NAME);
         }
     }
 }

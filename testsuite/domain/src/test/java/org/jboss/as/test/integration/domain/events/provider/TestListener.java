@@ -43,9 +43,8 @@ public class TestListener implements ControlledProcessStateListener {
     @Override
     public void init(Map<String, String> properties) {
         file = new File(properties.get("file"));
-        System.err.println("Writing state changes in file " + file);
         try {
-            fw = new FileWriter(file);
+            fw = new FileWriter(file, true);
         } catch (IOException e) {
             e.printStackTrace();
         }

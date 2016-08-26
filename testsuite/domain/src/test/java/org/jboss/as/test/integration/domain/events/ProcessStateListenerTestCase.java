@@ -23,7 +23,6 @@
 package org.jboss.as.test.integration.domain.events;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -62,7 +61,7 @@ public class ProcessStateListenerTestCase {
         final InputStream moduleXml = getModuleXml("process-state-listener-module.xml");
         StreamExporter exporter = createResourceRoot(TestListener.class.getPackage());
         Map<String, StreamExporter> content = Collections.singletonMap("process-state-listener.jar", exporter);
-        support.addTestModule("org.foo", moduleXml, content);
+        support.addTestModule(TestListener.class.getPackage().getName(), moduleXml, content);
     }
 
     static InputStream getModuleXml(final String name) {
@@ -100,6 +99,10 @@ public class ProcessStateListenerTestCase {
         initializeModule(testSupport);
     }
 
+    /**
+     * Add a process-state-listener on the master host by inoking a management operation.
+     * The listener will write a line in a file for every host controller state changes.
+     */
     @Test
     public void testListener() throws Throwable {
         testSupport.start();
@@ -113,7 +116,7 @@ public class ProcessStateListenerTestCase {
         ModelNode listeners = new ModelNode();
         ModelNode listener = new ModelNode();
         listener.get("class").set(TestListener.class.getName());
-        listener.get("module").set("org.foo");
+        listener.get("module").set(TestListener.class.getPackage().getName());
         ModelNode props = new ModelNode();
         props.add("file", tempFile.getAbsolutePath());
         listener.get("properties").set(props);
@@ -126,23 +129,30 @@ public class ProcessStateListenerTestCase {
         ModelNode removeJmxSubsystemListener = Util.createRemoveOperation(domainMasterLifecycleUtil.getAddress()
                 .append("subsystem", "jmx"));
         executeForResult(removeJmxSubsystemListener, domainMasterLifecycleUtil.getDomainClient());
+        // => changes state: running -> reload-required
 
         reload(testSupport);
+        // => changes state twice: reload-required -> stopping & starting -> running
 
         ModelNode shutdown = Util.createEmptyOperation("shutdown", domainMasterLifecycleUtil.getAddress());
         executeForResult(shutdown, domainMasterLifecycleUtil.getDomainClient());
+        // => changes state : running -> stopping
 
         testSupport.stop();
 
         List<String> output = Files.readAllLines(tempFile.toPath());
 
-        assertEquals(output.toString(), 2, output.size());
+        assertEquals(output.toString(), 4, output.size());
+        // state changed after removing the subsystem
         assertEquals("HOST_CONTROLLER NORMAL running reload-required", output.get(0));
+        // state changed after invoking reload
         assertEquals("HOST_CONTROLLER NORMAL reload-required stopping", output.get(1));
+        // state changed after server is reloading
+        assertEquals("HOST_CONTROLLER NORMAL starting running", output.get(2));
+        // state changed after server is shutdown
+        assertEquals("HOST_CONTROLLER NORMAL running stopping", output.get(3));
 
         tempFile.delete();
-
-        fail("wth");
     }
 
     private void reload(DomainTestSupport testSupport) throws Exception {

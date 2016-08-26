@@ -96,6 +96,7 @@ import java.util.Set;
 
 import javax.xml.stream.XMLStreamException;
 
+import org.jboss.as.controller.AttributeParsers;
 import org.jboss.as.controller.PathAddress;
 import org.jboss.as.controller.descriptions.ModelDescriptionConstants;
 import org.jboss.as.controller.operations.common.Util;
@@ -103,6 +104,7 @@ import org.jboss.as.controller.parsing.Attribute;
 import org.jboss.as.controller.parsing.Element;
 import org.jboss.as.controller.parsing.Namespace;
 import org.jboss.as.domain.management.ConfigurationChangeResourceDefinition;
+import org.jboss.as.domain.management.ProcessStateListenerResourceDefinition;
 import org.jboss.as.domain.management.access.AccessAuthorizationResourceDefinition;
 import org.jboss.as.domain.management.connections.ldap.LdapConnectionPropertyResourceDefinition;
 import org.jboss.as.domain.management.connections.ldap.LdapConnectionResourceDefinition;
@@ -262,10 +264,32 @@ class ManagementXml_5 extends ManagementXml {
 
     private void parseProcessStateListeners(final XMLExtendedStreamReader reader, final ModelNode address,
                                             final List<ModelNode> list) throws XMLStreamException {
-        /*
         PathAddress operationAddress = PathAddress.pathAddress(address);
         operationAddress = operationAddress.append(ProcessStateListenerResourceDefinition.PATH);
         final ModelNode add = Util.createAddOperation(PathAddress.pathAddress(operationAddress));
+
+        final ModelNode listeners = new ModelNode();
+        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            requireNamespace(reader, namespace);
+            final Element element = Element.forName(reader.getLocalName());
+            System.out.println("element = " + element);
+            switch (element) {
+                case PROCESS_STATE_LISTENER:
+                    ModelNode listener = new ModelNode();
+                    parseProcessStateListener(reader, listener);
+                    listeners.add(listener);
+                    break;
+                default: {
+                    throw unexpectedElement(reader);
+                }
+            }
+        }
+        add.get(ProcessStateListenerResourceDefinition.PROCESS_STATE_LISTENERS.getName()).set(listeners);
+        System.out.println("add = " + add);
+        list.add(add);
+    }
+
+    private void parseProcessStateListener(final XMLExtendedStreamReader reader, ModelNode listener) throws XMLStreamException {
         final int count = reader.getAttributeCount();
         for (int i = 0; i < count; i++) {
             final String value = reader.getAttributeValue(i);
@@ -274,20 +298,31 @@ class ManagementXml_5 extends ManagementXml {
             } else {
                 final Attribute attribute = Attribute.forName(reader.getAttributeLocalName(i));
                 switch (attribute) {
-                    case MAX_HISTORY: {
-                        ConfigurationChangeResourceDefinition.MAX_HISTORY.parseAndSetParameter(value, add, reader);
+                    case CLASS:
+                        ProcessStateListenerResourceDefinition.CLASS.parseAndSetParameter(value, listener, reader);
                         break;
-                    }
+                    case MODULE:
+                        ProcessStateListenerResourceDefinition.MODULE.parseAndSetParameter(value, listener, reader);
+                        break;
                     default: {
                         throw unexpectedAttribute(reader, i);
                     }
                 }
             }
         }
-        list.add(add);
-        */
-        if(reader.hasNext() && reader.nextTag() != END_ELEMENT) {
-            throw unexpectedElement(reader);
+        while (reader.hasNext() && reader.nextTag() != END_ELEMENT) {
+            requireNamespace(reader, namespace);
+            final Element element = Element.forName(reader.getLocalName());
+            switch (element) {
+                case PROPERTIES: {
+                    AttributeParsers.PropertiesParser parser = new AttributeParsers.PropertiesParser(PROPERTIES, PROPERTY, true);
+                    parser.parseElement(ProcessStateListenerResourceDefinition.PROPERTIES, reader, listener);
+                    break;
+                }
+                default: {
+                    throw unexpectedElement(reader);
+                }
+            }
         }
     }
 
@@ -2362,6 +2397,13 @@ class ManagementXml_5 extends ManagementXml {
 
     private void writeProcessStateListeners(XMLExtendedStreamWriter writer, ModelNode processStateListeners) throws XMLStreamException {
         writer.writeStartElement(Element.PROCESS_STATE_LISTENERS.getLocalName());
+        for (ModelNode processStateListener : processStateListeners.get(ProcessStateListenerResourceDefinition.PROCESS_STATE_LISTENERS.getName()).asList()) {
+            writer.writeStartElement(ProcessStateListenerResourceDefinition.PROCESS_STATE_LISTENER.getXmlName());
+            ProcessStateListenerResourceDefinition.CLASS.marshallAsAttribute(processStateListener, writer);
+            ProcessStateListenerResourceDefinition.MODULE.marshallAsAttribute(processStateListener, writer);
+            ProcessStateListenerResourceDefinition.PROPERTIES.marshallAsElement(processStateListener, writer);
+            writer.writeEndElement();
+        }
         writer.writeEndElement();
     }
 }

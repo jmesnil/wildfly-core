@@ -56,6 +56,7 @@ public enum Attribute {
     BASE_ROLE("base-role"),
     BOOT_TIME("boot-time"),
     CACHE_FAILURES("cache-failures"),
+    CLASS("class"),
     CODE("code"),
     COMPACT("compact"),
     CONNECTION("connection"),

@@ -40,6 +40,7 @@ import org.jboss.as.controller.OperationFailedException;
 import org.jboss.as.controller.OperationStepHandler;
 import org.jboss.as.controller.PathElement;
 import org.jboss.as.controller.PropertiesAttributeDefinition;
+import org.jboss.as.controller.SimpleAttributeDefinition;
 import org.jboss.as.controller.SimpleAttributeDefinitionBuilder;
 import org.jboss.as.controller.SimpleResourceDefinition;
 import org.jboss.as.controller.registry.ManagementResourceRegistration;
@@ -55,16 +56,16 @@ import org.jboss.modules.ModuleIdentifier;
 public class ProcessStateListenerResourceDefinition extends SimpleResourceDefinition {
     public static final PathElement PATH = PathElement.pathElement(SERVICE, "process-state-listeners");
 
-    private static final PropertiesAttributeDefinition PROPERTIES = new PropertiesAttributeDefinition.Builder("properties", true)
+    public static final PropertiesAttributeDefinition PROPERTIES = new PropertiesAttributeDefinition.Builder("properties", true)
             .setAllowExpression(true)
             .build();
-    private static final AttributeDefinition CLASS = SimpleAttributeDefinitionBuilder.create("class", ModelType.STRING)
+    public static final SimpleAttributeDefinition CLASS = SimpleAttributeDefinitionBuilder.create("class", ModelType.STRING)
             .build();
-    private static final AttributeDefinition MODULE = SimpleAttributeDefinitionBuilder.create("module", ModelType.STRING)
+    public static final SimpleAttributeDefinition MODULE = SimpleAttributeDefinitionBuilder.create("module", ModelType.STRING)
             .build();
-    private static final ObjectTypeAttributeDefinition PROCESS_STATE_LISTENER = ObjectTypeAttributeDefinition.create("process-state-listeners", CLASS, MODULE, PROPERTIES)
+    public static final ObjectTypeAttributeDefinition PROCESS_STATE_LISTENER = ObjectTypeAttributeDefinition.create("process-state-listener", CLASS, MODULE, PROPERTIES)
             .build();
-    private static final AttributeDefinition PROCESS_STATE_LISTENERS = ObjectListAttributeDefinition.Builder.of("process-state-listeners", PROCESS_STATE_LISTENER)
+    public static final AttributeDefinition PROCESS_STATE_LISTENERS = ObjectListAttributeDefinition.Builder.of("process-state-listeners", PROCESS_STATE_LISTENER)
             .setAllowNull(false)
             .setRuntimeServiceNotRequired()
             .build();

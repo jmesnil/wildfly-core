@@ -631,6 +631,9 @@ public abstract class AttributeDefinition {
         return resolveValue(new ExpressionResolver() {
             @Override
             public ModelNode resolveExpressions(ModelNode node) throws OperationFailedException {
+                if (isAllowExpression() && context.getCurrentStage() == OperationContext.Stage.MODEL) {
+                    throw new OperationFailedException("Can not resolve expression during Stage.MODEL");
+                }
                 return context.resolveExpressions(node);
             }
         }, value);

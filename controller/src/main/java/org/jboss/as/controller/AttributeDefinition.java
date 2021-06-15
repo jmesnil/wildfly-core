@@ -505,8 +505,18 @@ public abstract class AttributeDefinition {
             ControllerLogger.DEPRECATED_LOGGER.attributeDeprecated(getName(),
                     PathAddress.pathAddress(operationObject.get(ModelDescriptionConstants.OP_ADDR)).toCLIStyleString());
         }
+
+        // check if there is an env var that overrides the attribute value
+        String address = PathAddress.pathAddress(operationObject.get(ModelDescriptionConstants.OP_ADDR)).toCLIStyleString();
+        String envVar = replaceNonAlphanumericByUnderscoresAndMakeUpperCase(address.substring(1) + "_" + name);
+        String envVarValue = System.getenv(envVar);
+        if (envVarValue != null) {
+            operationObject.get(name).set(envVarValue);
+        }
+
         // AS7-6224 -- convert expression strings to ModelType.EXPRESSION *before* correcting
         ModelNode newValue = convertParameterExpressions(operationObject.get(name));
+
         final ModelNode correctedValue = correctValue(newValue, model.get(name));
         if (!correctedValue.equals(operationObject.get(name))) {
             operationObject.get(name).set(correctedValue);
@@ -518,6 +528,22 @@ public abstract class AttributeDefinition {
                 PathAddress.pathAddress(operationObject.get(ModelDescriptionConstants.OP_ADDR)).toCLIStyleString());
         }
         model.get(name).set(node);
+    }
+
+    private String replaceNonAlphanumericByUnderscoresAndMakeUpperCase(final String name) {
+        int length = name.length();
+        StringBuilder sb = new StringBuilder();
+        int c;
+        for (int i = 0; i < length; i += Character.charCount(c)) {
+            c = Character.toUpperCase(name.codePointAt(i));
+            if ('A' <= c && c <= 'Z' ||
+                    '0' <= c && c <= '9') {
+                sb.appendCodePoint(c);
+            } else {
+                sb.append('_');
+            }
+        }
+        return sb.toString();
     }
 
     private ModelNode convertToExpectedType(final ModelNode node) {
